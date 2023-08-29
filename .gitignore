@@ -1,3 +1,6 @@
 /code/settings.py
 /.idea
 ssh.txt
+/logs
+/roles
+groups_data.txt
