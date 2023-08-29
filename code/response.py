@@ -3,7 +3,7 @@ from code.settings import *
 
 
 class Response:
-    def __init__(self, text: str or list[str] = None, recipients: set or list[set] = None):
+    def __init__(self, text: str or list = None, recipients: set or list = None):
         if isinstance(text, str):
             self.text = [text]
         elif isinstance(text, list):

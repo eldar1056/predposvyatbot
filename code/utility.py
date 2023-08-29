@@ -85,7 +85,7 @@ def add_recipients(recipients: set, admins=False, stagers=False, armenians=False
 
 
 class Jam:
-    def __init__(self, stage_id: int, groups: list[int]):
+    def __init__(self, stage_id: int, groups: list):
         self.stage = stage_id
         self.groups = groups
 
