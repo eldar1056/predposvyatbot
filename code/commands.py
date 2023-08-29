@@ -41,14 +41,17 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if loc is None:
             loc = group.future_path[0]
 
-        message += '{:<8}'.format(str(group.group_id) + " гр - ")
+        num = str(group.group_id)
+        if len(num) == 1:
+            num += ' '
+        message += num + " гр - "
 
         if len(group.future_path) == 0 or (group.future_path == [-1]):
             message += "завершила путь."
         elif loc == -1:
             message += " стоит"
         elif group.moving:
-            message += '{:<5}'.format(right_arrow + ' ')  # "движется"
+            message += right_arrow  # "движется"
             if len(group.finished_path) > 0 and group.finished_path != [-1]:
                 message += str(group.finished_path[-1]) + '//'  # " от " + str(group.finished_path[-1]) + " этапа"
             # if loc == 2:
