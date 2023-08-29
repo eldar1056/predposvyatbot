@@ -43,7 +43,7 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         num = str(group.group_id)
         if len(num) == 1:
-            num += ' '
+            num += '  '
         message += num + " гр - "
 
         if len(group.future_path) == 0 or (group.future_path == [-1]):
