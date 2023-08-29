@@ -4,7 +4,7 @@ from code.settings import *
 
 def get_lines(filename: str):
     lines = []
-    with open(filename) as file:
+    with open(filename, encoding="UTF-8") as file:
         for line in file:
             lines.append(line.strip())
     return lines
@@ -95,7 +95,7 @@ def import_data(data: Data):
     import_roles(data)
 
     data.groups = {}
-    with open("groups_data.txt") as file:
+    with open("groups_data.txt", encoding="UTF-8") as file:
         for line in file:
             if line.strip() == '':
                 continue
@@ -140,13 +140,13 @@ def import_roles(data: Data):
 
 
 def store_roles(data: Data):
-    with open("roles/stagers.txt", "w") as stagers_file:
+    with open("roles/stagers.txt", "w", encoding="UTF-8") as stagers_file:
         for stager in data.stagers:
             stagers_file.write(str(stager.chat_id) + stager.username + str(stager.stage_id) + '\n')
-    with open("roles/armenians.txt", "w") as armenians_file:
+    with open("roles/armenians.txt", "w", encoding="UTF-8") as armenians_file:
         for armenian in data.armenians:
             armenians_file.write(str(armenian.chat_id) + armenian.username + '\n')
-    with open("roles/admins.txt", "w") as admins_file:
+    with open("roles/admins.txt", "w", encoding="UTF-8") as admins_file:
         for admin in data.admins:
             admins_file.write(str(admin) + '\n')
 
@@ -155,7 +155,7 @@ def store_data(data: Data, change_roles=False):
     if change_roles:
         store_roles(data)
 
-    with open("groups_data.txt", "w") as file:
+    with open("groups_data.txt", "w", encoding="UTF-8") as file:
         for group in data.groups.values():
             file.write(str(group.group_id) + ' ' + group.get_path(False) +
                        ' ' + group.get_path(True) + ' ' + str(group.location) + ' ' + str(group.moving))
