@@ -71,7 +71,7 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             finished = '0'
 
         position += '.'
-        message += f'{position:<20}'
+        message += f'{position:<2}'
         message += "Баллы: " + str(sum(group.scores)) + ". Этапы: " + finished + ".\n"
 
     if is_admin(update.message.chat_id, data):
