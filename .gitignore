@@ -1,6 +1,8 @@
 /code/settings.py
-.idea/
+.idea/**
 ssh.txt
-logs/
-roles/
+logs/**
+roles/**
 groups_data.txt
+**/__pycache__/**
+**/nohup.out
