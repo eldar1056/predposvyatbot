@@ -70,8 +70,8 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if group.finished_path == [-1]:
             finished = '0'
 
-        message += '{:<20}'.format(position)
-        message += ". Баллы: " + str(sum(group.scores)) + ". Этапы: " + finished + ".\n"
+        message += '{s:{c}^{n}}'.format(s=position + '.', c='', n=20)
+        message += "Баллы: " + str(sum(group.scores)) + ". Этапы: " + finished + ".\n"
 
     if is_admin(update.message.chat_id, data):
         jams = find_jam(data)
