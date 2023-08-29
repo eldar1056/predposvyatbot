@@ -9,4 +9,4 @@ async def second():
         await bot.send_message(624972316, )
 
 #asyncio.run(second())
-print('{:<7}'.format("123") + "456")
+print(f'{"123":<30} 444')
