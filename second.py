@@ -6,7 +6,6 @@ from code.settings import *
 async def second():
     bot = Bot(TOKEN)
     async with bot:
-        await bot.send_message(408831767, "")
-
+        await bot.send_message(624972316, )
 
 asyncio.run(second())
