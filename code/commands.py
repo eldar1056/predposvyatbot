@@ -41,7 +41,7 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if loc is None:
             loc = group.future_path[0]
 
-        message += '{:<8}'.format(str(group.group_id) + " гр - ")
+        message += '{:>7}'.format(str(group.group_id) + " гр - ")
 
         if len(group.future_path) == 0 or (group.future_path == [-1]):
             message += "завершила путь."
