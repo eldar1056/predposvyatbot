@@ -151,12 +151,17 @@ def handle_admin_response(text: str, data: Data):
                     occupied[group.location] = True
 
         for i in range(SIZE + 1):
-            message += str(i) + '. '
+            num = str(i) + '. '
+            if len(num) == 3:
+                num += "  "
+            message += num
             if len(stages[i]) == 0:
-                message += 'Свободен\n'
+                message += CHECK_MARK + ' Свободен\n'
             else:
                 if not occupied[i]:
-                    message += "Движ "
+                    message += RIGHT_ARROW + " "
+                else:
+                    message += CROSS_MARK + " "
                 for group_id in stages[i]:
                     message += str(group_id) + ', '
                 message = message[:-2]
@@ -184,7 +189,7 @@ def handle_stager_response(text: str, stage_id: int, data: Data):
         else:
             group_id = int(split_text[1])
             data.groups[group_id].arrival(stage_id)
-            message = 'Группа ' + str(group_id) + ' начала проходить ' + str(STAGE_NAMES[stage_id])
+            message = 'Группа ' + str(group_id) + ' начала проходить ' + str(stage_id) + ' этап'
 
             rec = set()
             if stage_id in range(1, SIZE+1):
@@ -220,7 +225,7 @@ def handle_stager_response(text: str, stage_id: int, data: Data):
             data.groups[group_id].finish_location(stage_id)
             data.groups[group_id].scores[stage_id] = score
             message = 'Группа ' + str(group_id) + ' завершила ' \
-                      + str(STAGE_NAMES[stage_id]) + ' с результатом: ' + str(score)
+                      + str(stage_id) + ' этап с результатом: ' + str(score)
             rec = set()
             if stage_id in range(1, SIZE+1):
                 for stager in data.stagers[stage_id]:
@@ -293,7 +298,7 @@ async def handle_message(text: str, chat_id: int, update: Update, context: Conte
     elif text in ['статус', 'стат', 'с', 'status', 'stat', 's']:
         await status_command(update, context)
         return
-    elif text in ['помощь', 'help']:
+    elif text in ['помощь', 'help', 'h']:
         await help_command(update, context)
         return
     elif text in ['start']:

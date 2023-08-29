@@ -103,3 +103,16 @@ def find_jam(data: Data):
             jams.append(Jam(i, current_groups[i]))
 
     return jams
+
+
+def fill(text: str, n: int, char: str = ' ', align_left=True):
+    size = len(text)
+    if n < size:
+        return text
+
+    appendix = char * (n - size)
+    if align_left:
+        return text + appendix
+    else:
+        return appendix + text
+
