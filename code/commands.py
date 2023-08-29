@@ -46,28 +46,31 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             num += '  '
         message += num + " гр - "
 
+        position = ''
         if len(group.future_path) == 0 or (group.future_path == [-1]):
-            message += "завершила путь."
+            position += "завершила путь"
         elif loc == -1:
-            message += " стоит"
+            position += " стоит"
         elif group.moving:
-            message += right_arrow + ' ' # "движется"
+            position += right_arrow + ' ' # "движется"
             if len(group.finished_path) > 0 and group.finished_path != [-1]:
-                message += str(group.finished_path[-1]) + '//'  # " от " + str(group.finished_path[-1]) + " этапа"
+                position += str(group.finished_path[-1]) + '/'  # " от " + str(group.finished_path[-1]) + " этапа"
             # if loc == 2:
             #     message += " ко "
             # else:
             #     message += " к "
-            message += str(group.location)  # + " этапу."
+            position += str(group.location)  # + " этапу."
         else:
             # message += " проходит "
-            if loc == 0:
-                message += "#армяне."
-            else:
-                message += str(loc)  # + " этап."
+            # if loc == 0:
+            #     message += "#армяне."
+            # else:
+            position += '\U0001F9CD' + str(loc)  # + " этап."
         finished = str(len(group.finished_path))
         if group.finished_path == [-1]:
             finished = '0'
+
+        message += '{:<20}'.format(position)
         message += ". Баллы: " + str(sum(group.scores)) + ". Этапы: " + finished + ".\n"
 
     if is_admin(update.message.chat_id, data):
