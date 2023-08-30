@@ -1,3 +1,5 @@
+import copy
+
 from code.commands import *
 from code.settings import *
 
@@ -168,6 +170,12 @@ def handle_admin_response(text: str, data: Data):
                 message += '\n'
 
         return Response(message)
+    elif split_text[0] == 'reset':
+        data.__init__(True)
+        message = 'ВНИМАНИЕ! Данные сброшены до начальных значений.'
+        rec = set()
+        add_recipients(rec, admins=True)
+        return Response(message, rec)
     elif split_text[0] in ['help*', 'h*', 'помощь*', 'п*', 'help+', 'h+', 'помощь+', 'п+']:
         return Response(get_file_text("help_text/admin+.txt"))
     elif split_text[0] in ["roles", "r", "роли", "р"]:

@@ -1,3 +1,4 @@
+import telegram.constants
 from telegram.ext import ContextTypes
 from code.settings import *
 from code.utility import *
@@ -29,7 +30,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 message = get_file_text("help_text/nobody.txt")
         message += get_file_text("help_text/default.txt")
 
-    await update.message.reply_text(message)
+    await update.message.reply_text(message, parse_mode=telegram.constants.ParseMode.HTML)
 
 
 async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -48,7 +49,7 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         position = ''
         if len(group.future_path) == 0 or (group.future_path == [-1]):
-            position = "Закончила"
+            position = "Закончили"
         elif loc == -1:
             position = "Стоит"
         elif group.moving:

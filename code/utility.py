@@ -1,3 +1,5 @@
+import telegram
+
 from code.data import Data
 from telegram import Update, Bot
 import datetime
@@ -53,7 +55,7 @@ async def send_message(text: str, bot: Bot, recipients=None, admins=False, stage
     add_recipients(recipients, admins, stagers, armenians)
 
     for chat in recipients:
-        await bot.send_message(chat, text)
+        await bot.send_message(chat, text, parse_mode=telegram.constants.ParseMode.HTML)
 
     if len(recipients) > 0:
         line = 'Message sent:\n recipients:'
