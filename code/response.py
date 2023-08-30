@@ -281,14 +281,17 @@ async def handle_messages(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     text = update.message.text.lower()
 
+    chat_id = update.message.chat.id
+
     if text.split()[0] in ['вопрос', 'request']:
         message = (text[7:]).replace('\n', ' ').strip()
         log_response(update, "logs/question_log.txt", message)
+        await update.message.reply_text('Ваше сообщение принято. Спасибо!')
         return
 
     messages = text.split('\n')
 
-    chat_id = update.message.chat.id
+
 
     print(f'User ({chat_id}) in {message_type}: "{text}"')
 
