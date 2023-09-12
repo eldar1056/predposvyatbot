@@ -20,6 +20,20 @@ class Response:
         else:
             self.recipients = None
 
+    def add_res(self, another):
+        if isinstance(another.text, str):
+            self.text.append(another.text)
+        elif isinstance(another.text, list):
+            self.text += another.text
+
+        if isinstance(another.recipients, set):
+            self.recipients.append(another.recipients)
+        elif isinstance(another.recipients, list):
+            self.recipients += another.recipients
+
+    def add(self, text: str or list = None, recipients: set or list = None):
+        self.add_res(Response(text, recipients))
+
     async def send(self, bot: Bot):
         if bot is None or self.text is None:
             return
@@ -219,9 +233,10 @@ def handle_stager_response(text: str, stage_id: int, data: Data):
         elif len(split_text) < 3:
             return Response('Введите количество баллов в формате: конец '
                             '[номер группы] [количество баллов]')
-        elif not (split_text[2].isdigit() or (split_text[2][1:].isdigit() and split_text[2][0] == '-')):
+        elif (not (split_text[2].isdigit() or (split_text[2][1:].isdigit() and split_text[2][0] == '-'))) or\
+                (int(split_text[2]) not in range(0, 11)):
             return Response('Введите корректное количество баллов в формате:конец '
-                            '[номер группы] [количество баллов (целое число)]')
+                            '[номер группы] [количество баллов (целое число от 0 до 10)]')
         else:
             group_id = int(split_text[1])
             score = int(split_text[2])
@@ -234,16 +249,16 @@ def handle_stager_response(text: str, stage_id: int, data: Data):
             data.groups[group_id].scores[stage_id] = score
             message = 'Группа ' + str(group_id) + ' завершила ' \
                       + str(stage_id) + ' этап с результатом: ' + str(score)
-            rec = set()
+            rec = add_recipients(admins=True)
+
             if stage_id in range(1, SIZE+1):
                 for stager in data.stagers[stage_id]:
                     rec.add(stager.chat_id)
-            elif stage_id == 0:
-                for armenian in data.armenians:
-                    rec.add(armenian.chat_id)
 
-            for admin in data.admins:
-                rec.add(admin)
+            resp = Response(message, rec)
+
+            if stage_id == 0:
+                resp.add('Группа ' + str(group_id) + ' завершила #армяне', add_recipients(armenians=True))
 
             if not finished:
                 jams = find_jam(data)
@@ -257,13 +272,10 @@ def handle_stager_response(text: str, stage_id: int, data: Data):
                             jam_message = jam_message[:-2]
                             jam_message += '\n'
 
-                        jam_rec = set()
-                        add_recipients(jam_rec, admins=True)
-                        message = [message, jam_message]
-                        rec = [rec, jam_rec]
+                        resp.add(jam_message, add_recipients(admins=True))
                         break
 
-            return Response(message, rec)
+            return resp
     else:
         return Response('Недоступная команда: ' + split_text[0])
 
@@ -271,6 +283,16 @@ def handle_stager_response(text: str, stage_id: int, data: Data):
 def handle_armenian_response(text: str, data: Data):
     if text == 'me':
         return Response('armenian')
+
+    split_text = text.split()
+    if split_text[0] in ["к", "кон", "конец", "финиш", "finish", "fin", "f", "end"]:
+        if len(split_text) == 1:
+            return Response('Введите номер группы в формате:конец [номер группы]')
+        elif (not split_text[1].isdigit()) or (int(split_text[1]) not in range(1, SIZE + 1)):
+            return Response('Введите корректный номер группы в формате:'
+                            'конец [номер группы(от 1 до ' + str(SIZE) + ' )]')
+        else:
+            return handle_stager_response(split_text[0]+' '+split_text[1]+' '+'0', 0, data)
     return handle_stager_response(text, 0, data)
 
 

@@ -67,7 +67,9 @@ async def send_message(text: str, bot: Bot, recipients=None, admins=False, stage
         print(line)
 
 
-def add_recipients(recipients: set, admins=False, stagers=False, armenians=False):
+def add_recipients(recipients=None, admins=False, stagers=False, armenians=False):
+    if recipients is None:
+        recipients = set()
     if not (admins or stagers or armenians):
         return recipients
 
