@@ -324,10 +324,10 @@ async def handle_message(text: str, chat_id: int, update: Update, context: Conte
 
     if text in ["да", "д", "конечно", "разумеется", "так точно", "yes", "y", "yep", "ok", "ок", "+", "1"]:
         log_response(update, "logs/answer_log.txt", "Yes")
-        response = Response('Принято')
+        response.text = ['Принято']
     elif text in ["нет", "н", "иди нафиг", "no", "n", "nope", "-", "0"]:
         log_response(update, "logs/answer_log.txt", "No")
-        response = Response('Принято')
+        response.text = ['Принято']
     elif text in ['статус', 'стат', 'с', 'status', 'stat', 's']:
         await status_command(update, context)
         return
@@ -344,7 +344,7 @@ async def handle_message(text: str, chat_id: int, update: Update, context: Conte
         await stages_command(update, context)
         return
 
-    if response is None or response.text is None or response.text != [None] or response.text == '' \
+    if response is None or response.text is None or response.text == [None] or response.text == '' \
             or response.text == ['']:
         response = handle_response(chat_id, text)
 
