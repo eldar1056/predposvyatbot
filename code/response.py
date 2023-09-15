@@ -313,8 +313,6 @@ async def handle_messages(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     messages = text.split('\n')
 
-
-
     print(f'User ({chat_id}) in {message_type}: "{text}"')
 
     for message in messages:
@@ -324,10 +322,10 @@ async def handle_messages(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def handle_message(text: str, chat_id: int, update: Update, context: ContextTypes.DEFAULT_TYPE):
     if text in ["да", "д", "конечно", "разумеется", "так точно", "yes", "y", "yep", "ok", "ок", "+", "1"]:
         log_response(update, "logs/answer_log.txt", "Yes")
-        return
+        return Response('Принято')
     elif text in ["нет", "н", "иди нафиг", "no", "n", "nope", "-", "0"]:
         log_response(update, "logs/answer_log.txt", "No")
-        return
+        return Response('Принято')
     elif text in ['статус', 'стат', 'с', 'status', 'stat', 's']:
         await status_command(update, context)
         return
