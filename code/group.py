@@ -9,6 +9,7 @@ class Group:
         self.location = start_location
         self.moving = True
         self.scores = [0 for i in range(SIZE+2)]
+        self.arm_scores = [0 for i in range(ARMENIAN_SIZE)]
 
     def arrival(self, location_id: int):
         self.location = location_id

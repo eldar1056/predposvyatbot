@@ -21,7 +21,7 @@ class Data:
     def __init__(self, erase_data=False):
         self.stagers = {}
         self.admins = []
-        self.armenians = []
+        self.armenians = {}
         self.groups = {}
 
         if erase_data:
@@ -39,11 +39,12 @@ class Data:
                 collisions.append(admin)
             else:
                 ids.append(admin)
-        for armenian in self.armenians:
-            if armenian.chat_id in ids:
-                collisions.append(armenian.chat_id)
-            else:
-                ids.append(armenian.chat_id)
+        for key in self.armenians.keys():
+            for armenian in self.armenians[key]:
+                if armenian.chat_id in ids:
+                    collisions.append(armenian.chat_id)
+                else:
+                    ids.append(armenian.chat_id)
         for key in self.stagers.keys():
             for stager in self.stagers[key]:
                 if stager.chat_id in ids:
@@ -80,8 +81,10 @@ class Data:
             line += '[]'
         else:
             line += '['
-            for armenian in self.armenians:
-                line += 'chat_id=' + str(armenian.chat_id) + ' username=' + armenian.username + ', '
+            for arm_id in self.armenians:
+                for armenian in self.armenians[arm_id]:
+                    line += 'chat_id=' + str(armenian.chat_id) + \
+                            ' username=' + armenian.username + 'stage_id=' + str(armenian.stage_id) + ', '
             line = line[:-2]
             line += ']'
 
@@ -112,20 +115,21 @@ def import_data(data: Data):
             group_moving = False
             if split_line[4] == "True":
                 group_moving = True
-            scores = [int(score) for score in split_line[5:]]
+            scores = [int(score) for score in split_line[5:7+SIZE]]
+            arm_scores = [int(score) for score in split_line[7+SIZE:]]
 
             data.groups[group_id] = Group(group_id, group_location)
             data.groups[group_id].finished_path = finished_path
             data.groups[group_id].future_path = future_path
             data.groups[group_id].moving = group_moving
             data.groups[group_id].scores = scores
+            data.groups[group_id].arm_scores = arm_scores
 
 
 def import_roles(data: Data):
     data.stagers = {i: [] for i in range(1, SIZE + 1)}
     data.admins = [int(line.strip()) for line in get_lines("roles/admins.txt") if not line.strip() == '']
-    data.armenians = [Stager([line.split()[0], line.split()[1], 0])
-                      for line in get_lines("roles/armenians.txt") if not line.strip() == '']
+    data.armenians = {i: [] for i in range(0, ARMENIAN_SIZE)}
 
     stager_lines = get_lines("roles/stagers.txt")
     for line in stager_lines:
@@ -133,6 +137,13 @@ def import_roles(data: Data):
             continue
         split_line = line.split()
         data.stagers[int(split_line[2])].append(Stager(split_line))
+
+    armenian_lines = get_lines("roles/armenians.txt")
+    for line in armenian_lines:
+        if line.strip() == '':
+            continue
+        split_line = line.split()
+        data.armenians[int(split_line[2])].append(Stager(split_line))
 
     col = data.check_collisions()
     if len(col) > 0:
@@ -145,7 +156,7 @@ def store_roles(data: Data):
             stagers_file.write(str(stager.chat_id) + stager.username + str(stager.stage_id) + '\n')
     with open("roles/armenians.txt", "w", encoding="UTF-8") as armenians_file:
         for armenian in data.armenians:
-            armenians_file.write(str(armenian.chat_id) + armenian.username + '\n')
+            armenians_file.write(str(armenian.chat_id) + armenian.username + str(armenian.stage_id) + '\n')
     with open("roles/admins.txt", "w", encoding="UTF-8") as admins_file:
         for admin in data.admins:
             admins_file.write(str(admin) + '\n')
@@ -160,5 +171,7 @@ def store_data(data: Data, change_roles=False):
             file.write(str(group.group_id) + ' ' + group.get_path(False) +
                        ' ' + group.get_path(True) + ' ' + str(group.location) + ' ' + str(group.moving))
             for score in group.scores:
+                file.write(' ' + str(score))
+            for score in group.arm_scores:
                 file.write(' ' + str(score))
             file.write('\n')

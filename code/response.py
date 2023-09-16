@@ -48,8 +48,8 @@ def handle_response(chat_id: int, text: str):
     response = Response()
     if is_admin(chat_id, data):
         response = handle_admin_response(text, data)
-    elif is_armenian(chat_id, data):
-        response = handle_armenian_response(text, data)
+    elif is_armenian(chat_id, data) >= 0:
+        response = handle_armenian_response(text, is_armenian(chat_id, data), data)
     else:
         stage = determine_stage(chat_id, data)
         if stage in range(1, SIZE+1):
@@ -211,17 +211,16 @@ def handle_stager_response(text: str, stage_id: int, data: Data):
         else:
             group_id = int(split_text[1])
             data.groups[group_id].arrival(stage_id)
-            message = 'Группа ' + str(group_id) + ' начала проходить ' + str(stage_id) + ' этап'
 
-            rec = set()
+            rec = add_recipients(admins=True)
             if stage_id in range(1, SIZE+1):
+                message = 'Группа ' + str(group_id) + ' начала проходить ' + str(stage_id) + ' этап'
                 for stager in data.stagers[stage_id]:
                     rec.add(stager.chat_id)
-            elif stage_id == 0:
-                for armenian in data.armenians:
+            elif stage_id in range(-ARMENIAN_SIZE+1, 1):
+                message = 'Группа ' + str(group_id) + ' начала проходить ' + str(ARMENIAN_NAMES[-stage_id])
+                for armenian in data.armenians[-stage_id]:
                     rec.add(armenian.chat_id)
-            for admin in data.admins:
-                rec.add(admin)
 
             return Response(message, rec)
     elif split_text[0] in ["к", "кон", "конец", "финиш", "finish", "fin", "f", "end"]:
@@ -242,23 +241,30 @@ def handle_stager_response(text: str, stage_id: int, data: Data):
             score = int(split_text[2])
 
             finished = False
-            if stage_id in data.groups[group_id].finished_path:
-                finished = True
 
-            data.groups[group_id].finish_location(stage_id)
-            data.groups[group_id].scores[stage_id] = score
-            message = 'Группа ' + str(group_id) + ' завершила ' \
-                      + str(stage_id) + ' этап с результатом: ' + str(score)
             rec = add_recipients(admins=True)
+            if stage_id > 0:
+                if stage_id in data.groups[group_id].finished_path:
+                    finished = True
 
-            if stage_id in range(1, SIZE+1):
+                data.groups[group_id].finish_location(stage_id)
+                data.groups[group_id].scores[stage_id] = score
+                message = 'Группа ' + str(group_id) + ' завершила ' \
+                          + str(stage_id) + ' этап с результатом: ' + str(score)
+
                 for stager in data.stagers[stage_id]:
                     rec.add(stager.chat_id)
+            else:
+                data.groups[group_id].finish_location(0)
+                data.groups[group_id].arm_scores[-stage_id] = score
+                data.groups[group_id].scores[0] = sum(data.groups[group_id].arm_scores)
+                message = 'Группа ' + str(group_id) + ' завершила "'\
+                          + str(ARMENIAN_NAMES[-stage_id]) + '" с результатом ' + str(score)
+
+                for armenian in data.armenians[-stage_id]:
+                    rec.add(armenian.chat_id)
 
             resp = Response(message, rec)
-
-            if stage_id == 0:
-                resp.add('Группа ' + str(group_id) + ' завершила #армяне', add_recipients(armenians=True))
 
             if not finished:
                 jams = find_jam(data)
@@ -280,20 +286,26 @@ def handle_stager_response(text: str, stage_id: int, data: Data):
         return Response('Недоступная команда: ' + split_text[0])
 
 
-def handle_armenian_response(text: str, data: Data):
+def handle_armenian_response(text: str, arm_id: int, data: Data):
     if text == 'me':
         return Response('armenian')
 
     split_text = text.split()
     if split_text[0] in ["к", "кон", "конец", "финиш", "finish", "fin", "f", "end"]:
         if len(split_text) == 1:
-            return Response('Введите номер группы в формате:конец [номер группы]')
+            return Response('Введите номер группы в формате:конец [номер группы] [количество баллов]')
         elif (not split_text[1].isdigit()) or (int(split_text[1]) not in range(1, SIZE + 1)):
             return Response('Введите корректный номер группы в формате:'
-                            'конец [номер группы(от 1 до ' + str(SIZE) + ' )]')
-        else:
-            return handle_stager_response(split_text[0]+' '+split_text[1]+' '+'0', 0, data)
-    return handle_stager_response(text, 0, data)
+                            'конец [номер группы(от 1 до ' + str(SIZE) + ' )] [количество баллов]')
+        elif len(split_text) < 3:
+            return Response('Введите количество баллов в формате: конец '
+                            '[номер группы] [количество баллов]')
+        elif (not (split_text[2].isdigit() or (split_text[2][1:].isdigit() and split_text[2][0] == '-'))) or \
+                (int(split_text[2]) not in range(0, 4)):
+            return Response('Введите корректное количество баллов в формате:конец '
+                            '[номер группы] [количество баллов (целое число от 0 до 3)]')
+
+    return handle_stager_response(text, -arm_id, data)
 
 
 async def handle_messages(update: Update, context: ContextTypes.DEFAULT_TYPE):

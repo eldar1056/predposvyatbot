@@ -23,10 +23,11 @@ def is_admin(chat_id: int, data: Data):
 
 
 def is_armenian(chat_id: int, data: Data):
-    for armenian in data.armenians:
-        if chat_id == armenian.chat_id:
-            return True
-    return False
+    for stage_id in data.armenians.keys():
+        for armenian in data.armenians[stage_id]:
+            if chat_id == armenian.chat_id:
+                return stage_id
+    return -1
 
 
 def determine_stage(chat_id: int, data: Data):
@@ -82,8 +83,9 @@ def add_recipients(recipients=None, admins=False, stagers=False, armenians=False
             for stager in stage:
                 recipients.add(stager.chat_id)
     if armenians:
-        for armenian in data.armenians:
-            recipients.add(armenian.chat_id)
+        for key in data.armenians:
+            for armenian in data.armenians[key]:
+                recipients.add(armenian.chat_id)
 
     return recipients
 

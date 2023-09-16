@@ -8,7 +8,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     log_response(update, "logs/start_log.txt", "")
     await update.message.reply_text('Привет!\n\nЭтот бот был сделан для проведения предпосвята фопф32x. '
                                     'С его помощью можно отслеживать прогресс прохождения этапов группами.\n\n'
-                                    'Чтобы получить описание возможных команд, нажмите на /help')
+                                    'Карта предпосвята: https://yandex.ru/maps/-/CDU4rAo-\n\nЧтобы получить описание возможных команд, нажмите на /help')
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -19,13 +19,16 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if is_admin(chat_id, data):
         message = get_file_text("help_text/admin.txt")
     else:
-        if is_armenian(chat_id, data):
-            message = get_file_text("help_text/armenian.txt").replace('{SIZE}', str(SIZE))
+        arm_id = is_armenian(chat_id, data)
+        if arm_id >= 0:
+            message = get_file_text("help_text/armenian.txt").replace(
+                '{SIZE}', str(SIZE)).replace('{stage_name}', str(ARMENIAN_NAMES[arm_id]))
         else:
             stage = determine_stage(chat_id, data)
             if stage in range(SIZE+1):
                 message = get_file_text("help_text/stager.txt")
-                message = message.replace('{stage_id}', str(stage)).replace('{stage_name}', STAGE_NAMES[stage]).replace('{SIZE}', str(SIZE))
+                message = message.replace('{stage_id}', str(stage)).replace(
+                    '{stage_name}', STAGE_NAMES[stage]).replace('{SIZE}', str(SIZE))
             else:
                 message = get_file_text("help_text/nobody.txt")
         message += get_file_text("help_text/default.txt")
@@ -69,7 +72,7 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             # else:
             message += STANDING_MAN
             position = str(loc)  # + " этап."
-        finished = str(len(group.finished_path))
+        finished = str(len([stage for stage in group.finished_path if stage != 0]))
         if group.finished_path == [-1]:
             finished = '0'
 
@@ -122,8 +125,9 @@ async def stages_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         message += '\n\n'
 
     message += "#армяне: "
-    for armenian in data.armenians:
-        message += armenian.username + ', '
+    for key in data.armenians.keys():
+        for armenian in data.armenians[key]:
+            message += armenian.username + ', '
     message = message[:-2]
 
     await update.message.reply_text(message)
@@ -137,8 +141,8 @@ async def scores_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         message += str(i) + ". " + str(sum(data.groups[i].scores))
 
         second_part = ''
-        separator = ':'
         for j in range(1, SIZE+1):
+            print(i, j, data.groups[i].scores[j])
             if data.groups[i].scores[j] != 0:
                 second_part += str(data.groups[i].scores[j]) + '(' + str(j) + ') + '
         if data.groups[i].scores[0] != 0:
