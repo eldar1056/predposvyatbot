@@ -68,7 +68,7 @@ def handle_admin_response(text: str, data: Data):
     elif split_text[0] in ["путь", "path", "п", "p"]:
         if len(split_text) == 1:
             return Response('Введите номер группы в формате:путь [номер группы] [прошлый/будущий (будущий по умолчанию)]')
-        elif (not split_text[1].isdigit()) or (int(split_text[1]) not in range(1, SIZE)):
+        elif (not split_text[1].isdigit()) or (int(split_text[1]) not in range(1, SIZE+1)):
             return Response('Введите корректный номер группы в формате:'
                             'путь [номер группы(от 1 до ' + str(SIZE) + ' )] [прошлый/будущий (будущий по умолчанию)]')
         else:
