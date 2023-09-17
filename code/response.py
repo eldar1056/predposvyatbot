@@ -184,6 +184,25 @@ def handle_admin_response(text: str, data: Data):
                 message += '\n'
 
         return Response(message)
+    elif split_text[0] in ['moving', 'set_moving', 'm', 'sm', 'движение', 'дв', 'движ', 'установить_движение', 'уд']:
+        if len(split_text) < 2 or (not split_text[1].isdigit()) or (int(split_text[1]) not in range(1, SIZE+1)):
+            return Response('Введите запрос в формате:движение [номер группы] [0/1]')
+        else:
+            group_id = int(split_text[1])
+
+            moving = False
+            if len(split_text) >= 3 and split_text[2] in ['yes', 'да', '+', '1', 'true']:
+                moving = True
+
+            data.groups[group_id].set_moving(moving)
+
+            message = 'Группа ' + str(group_id)
+            if moving:
+                message += ' движется'
+            else:
+                message += ' стоит'
+            return Response(message)
+
     elif split_text[0] == 'reset':
         data.__init__(True)
         message = 'ВНИМАНИЕ! Данные сброшены до начальных значений.'

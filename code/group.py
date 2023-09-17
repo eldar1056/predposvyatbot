@@ -43,3 +43,6 @@ class Group:
         for i in range(1, len(path)):
             str_path += "-" + str(path[i])
         return str_path
+
+    def set_moving(self, moving: bool):
+        self.moving = moving
