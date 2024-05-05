@@ -56,7 +56,9 @@ async def send_message(text: str, bot: Bot, recipients=None, admins=False, stage
     add_recipients(recipients, admins, stagers, armenians)
 
     for chat in recipients:
-        await bot.send_message(chat, text, parse_mode=telegram.constants.ParseMode.HTML)
+        text_arr = text[::4096]
+        for line in text_arr:
+            await bot.send_message(chat, line, parse_mode=telegram.constants.ParseMode.HTML)
 
     if len(recipients) > 0:
         line = 'Message sent:\n recipients:'
