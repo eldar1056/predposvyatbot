@@ -1,4 +1,5 @@
 import telegram
+import math
 
 from code.data import Data
 from telegram import Update, Bot
@@ -56,7 +57,7 @@ async def send_message(text: str, bot: Bot, recipients=None, admins=False, stage
     add_recipients(recipients, admins, stagers, armenians)
 
     for chat in recipients:
-        text_arr = text[::4096]
+        text_arr = [text[i*4096:(i+1)*4096] for i in range(math.ceil(len(text)/4))]
         for line in text_arr:
             await bot.send_message(chat, line, parse_mode=telegram.constants.ParseMode.HTML)
 
