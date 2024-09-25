@@ -101,7 +101,7 @@ def add_recipients(recipients: set = None, admins: bool = False, stagers: bool =
 
 # Пробка - этап, на котором сейчас больше одной группы
 class Jam:
-    def __init__(self, stage_id: int, groups: list[Group]):
+    def __init__(self, stage_id: int, groups: list):
         self.stage = stage_id
         self.groups = groups
 
