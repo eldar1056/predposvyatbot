@@ -369,7 +369,7 @@ def handle_armenian_response(text: str, arm_id: int, data: Data):
             return Response('Введите корректное количество баллов в формате:конец '
                             '[номер группы] [количество баллов (целое число от 0 до 3)]')
 
-    return handle_stager_response(text, -arm_id, data)
+    return handle_stager_response(text, arm_id, data)
 
 
 async def handle_messages(update: Update, context: ContextTypes.DEFAULT_TYPE):
