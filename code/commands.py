@@ -46,7 +46,10 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     for group in data.groups.values():
         loc = group.location
         if loc is None:
-            loc = group.future_path[0]
+            if group.future_path is not None and len(group.future_path > 0):
+                loc = group.future_path[0]
+            else:
+                loc = 0
 
         num = str(group.group_id) + '. '
         if len(num) == 3:
@@ -137,14 +140,15 @@ async def stages_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         message = message[:-2]
         message += '\n\n'
 
-    message = '#армяне\n\n'
-    for i in range(1, ARMENIAN_SIZE+1):
-        message += str(i) + '. ' + str(ARMENIAN_NAMES[i]) + ": "
-        for armenian in data.armenians[-i]:
-            message += armenian.username + ', '
-        message = message[:-2]
-        if i < ARMENIAN_SIZE:
-            message += '\n\n'
+    if ARMENIAN_SIZE > 0:
+        message += '#армяне\n\n'
+        for i in range(1, ARMENIAN_SIZE+1):
+            message += str(i) + '. ' + str(ARMENIAN_NAMES[i]) + ": "
+            for armenian in data.armenians[-i]:
+                message += armenian.username + ', '
+            message = message[:-2]
+            if i < ARMENIAN_SIZE:
+                message += '\n\n'
 
     await update.message.reply_text(message)
 

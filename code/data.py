@@ -114,10 +114,10 @@ def import_data(data: Data):
             group_id = int(split_line[0])
             finished_path = [0]
             if split_line[1] != '0':
-                finished_path = [int(loc) for loc in split_line[1].split('-')]
+                finished_path = [int(loc) for loc in split_line[1].split('/')]
             future_path = [0]
             if split_line[2] != '0':
-                future_path = [int(loc) for loc in split_line[2].split('-')]
+                future_path = [int(loc) for loc in split_line[2].split('/')]
             group_location = int(split_line[3])
             group_moving = False
             if split_line[4] == "True":

@@ -187,7 +187,7 @@ def handle_admin_response(text: str, data: Data):
                 if not group.moving:
                     occupied[group.location] = True
 
-        for i in range(STAGES_SIZE+ 1):
+        for i in range(1, STAGES_SIZE + 1):
             num = str(i) + '. '
             if len(num) == 3:
                 num += "  "
@@ -213,7 +213,7 @@ def handle_admin_response(text: str, data: Data):
                 if not group.moving:
                     occupied[-group.location] = True
 
-        for i in range(ARMENIAN_SIZE + 1):
+        for i in range(1, ARMENIAN_SIZE + 1):
             num = str(-i) + '. '
             if len(num) == 3:
                 num += "  "
