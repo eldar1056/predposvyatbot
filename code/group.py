@@ -1,23 +1,26 @@
 from code.settings import *
 
 
+# Информация о положении группы и ее оценках. Хранятся пройденный и будущий путь группы в массивах
 class Group:
     def __init__(self, group_id: int, start_location: int):
-        self.group_id = group_id
-        self.finished_path = [-1]
-        self.future_path = [((i+group_id-1) % SIZE)+1 for i in range(SIZE)]
-        self.location = start_location
-        self.moving = True
-        self.scores = [0 for i in range(SIZE+2)]
-        self.arm_scores = [0 for i in range(ARMENIAN_SIZE)]
+        self.group_id: int = group_id
+        self.finished_path: list[int] = [0]
+        self.future_path: list[int] = [((i+group_id-1) % STAGES_SIZE)+1 for i in range(STAGES_SIZE)]
+        self.location: int = start_location
+        self.moving: bool = True
+        self.scores: list[int] = [0 for i in range(STAGES_SIZE+1)]
+        self.arm_scores: list[int] = [0 for i in range(ARMENIAN_SIZE+1)]
 
+    # Когда происходит начало на этапе
     def arrival(self, location_id: int):
         self.location = location_id
         self.moving = False
 
+    # Когда происходит конец на этапе
     def finish_location(self, location_id: int):
         if location_id not in self.finished_path:
-            if self.finished_path == [-1]:
+            if self.finished_path == [0]:
                 self.finished_path = []
             self.finished_path.append(location_id)
 
@@ -26,22 +29,33 @@ class Group:
             self.future_path.pop(erase_id)
 
         if len(self.future_path) == 0:
-            self.future_path = [-1]
+            self.future_path = [0]
 
         self.moving = True
         self.location = self.future_path[0]
 
-    def get_path(self, future=True):
-        path = self.finished_path
-        if future:
-            path = self.future_path
+    # Получить строку с прошлым или будущим путем группы
+    def get_path(self, finished=True, future=False):
+        if not future and not finished:
+            return 0
+        if len(self.future_path) == 0 and len(self.finished_path) == 0:
+            return 0
 
-        if len(path) == 0:
-            return '-1'
+        str_path = ""
 
-        str_path = str(path[0])
-        for i in range(1, len(path)):
-            str_path += "-" + str(path[i])
+        if finished and len(self.finished_path) != 0:
+            if future and finished:
+                str_path += "Прошлый:"
+            str_path += str(self.finished_path[0])
+            for i in range(1, len(self.finished_path)):
+                str_path += "/" + str(self.finished_path[i])
+        if future and len(self.future_path) != 0:
+            if future and finished:
+                str_path += "\nБудущий:"
+            str_path += str(self.future_path[0])
+            for i in range(1, len(self.future_path)):
+                str_path += "/" + str(self.future_path[i])
+
         return str_path
 
     def set_moving(self, moving: bool):

@@ -5,6 +5,7 @@ from code.data import Data
 from telegram import Update, Bot
 import datetime
 from code.settings import *
+from group import Group
 
 
 def log_response(update: Update, filename: str, message: str = ""):
@@ -23,20 +24,23 @@ def is_admin(chat_id: int, data: Data):
     return False
 
 
-def is_armenian(chat_id: int, data: Data):
+# Определить на каком этапе находится армянин
+def determine_armenian(chat_id: int, data: Data):
     for stage_id in data.armenians.keys():
         for armenian in data.armenians[stage_id]:
             if chat_id == armenian.chat_id:
                 return stage_id
-    return -1
+    return 0
 
 
+# Определить на каком этапе находится этапник
 def determine_stage(chat_id: int, data: Data):
     for stage in data.stagers.values():
         for stager in stage:
             if chat_id == stager.chat_id:
                 return stager.stage_id
-    return -1
+
+    return determine_armenian(chat_id, data)
 
 
 def get_file_text(filename: str):
@@ -47,6 +51,7 @@ def get_file_text(filename: str):
     return message
 
 
+# Отправить сообщение получателям
 async def send_message(text: str, bot: Bot, recipients=None, admins=False, stagers=False, armenians=False):
     if text is None or text == '':
         return
@@ -71,7 +76,8 @@ async def send_message(text: str, bot: Bot, recipients=None, admins=False, stage
         print(line)
 
 
-def add_recipients(recipients=None, admins=False, stagers=False, armenians=False):
+# Возвращает множество, дополненное всеми админами, этапниками или армянами
+def add_recipients(recipients: set = None, admins: bool = False, stagers: bool = False, armenians: bool = False):
     if recipients is None:
         recipients = set()
     if not (admins or stagers or armenians):
@@ -93,28 +99,31 @@ def add_recipients(recipients=None, admins=False, stagers=False, armenians=False
     return recipients
 
 
+# Пробка - этап, на котором сейчас больше одной группы
 class Jam:
-    def __init__(self, stage_id: int, groups: list):
-        self.stage = stage_id
-        self.groups = groups
+    def __init__(self, stage_id: int, groups: list[Group]):
+        self.stage: int = stage_id
+        self.groups: list[Group] = groups
 
 
+# Находит все существующие пробки
 def find_jam(data: Data):
     jams = []
 
-    current_groups = [[] for i in range(SIZE+1)]
+    current_groups = [[] for i in range(STAGES_SIZE+1)]
     for group in data.groups.values():
-        if group.location is not None and group.location in range(SIZE+1):
+        if group.location is not None and group.location in range(1, STAGES_SIZE+1):
             current_groups[group.location].append(group.group_id)
 
-    for i in range(SIZE+1):
+    for i in range(STAGES_SIZE+1):
         if len(current_groups[i]) > 1:
             jams.append(Jam(i, current_groups[i]))
 
     return jams
 
 
-def fill(text: str, n: int, char: str = ' ', align_left=True):
+# Возвращает строку, дополненную до определенной длины одним символом слева или справа
+def fill(text: str, n: int, char: str = ' ', align_left: bool = True):
     size = len(text)
     if n < size:
         return text

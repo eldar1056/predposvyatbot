@@ -10,27 +10,31 @@ def get_lines(filename: str):
     return lines
 
 
+# Этапники - проводящие на движущихся и недвижущихся станциях - stagers и armenians
 class Stager:
     def __init__(self, array):
-        self.chat_id = int(array[0])
-        self.username = array[1]
-        self.stage_id = int(array[2])
+        self.chat_id: int = int(array[0])
+        self.username: str = array[1]
+        self.stage_id: int = int(array[2])
 
 
+# Хранит в себе информацию о состоянии предпосвята - положение групп и список ролей - admins, stagers, armenians
 class Data:
     def __init__(self, erase_data=False):
-        self.stagers = {}
-        self.admins = []
-        self.armenians = {}
-        self.groups = {}
+        self.stagers: dict[int: list[Stager]] = {}
+        self.admins: list[int] = []
+        self.armenians: dict[int: list[Stager]] = {}
+        self.groups: list[int: Group] = {}
 
+        # Если erase_data, данные о состоянии групп перегенерируются в начальное положение
         if erase_data:
-            self.groups = {i: Group(i, i) for i in range(1, SIZE + 1)}
+            self.groups = {i: Group(i, i) for i in range(1, GROUPS_SIZE + 1)}
             import_roles(self)
             store_data(self)
         else:
             import_data(self)
 
+    # Проверяет уникальность chat_id для admins, stagers, armenians
     def check_collisions(self):
         ids = []
         collisions = []
@@ -54,6 +58,7 @@ class Data:
 
         return collisions
 
+    # Возвращает строку со списком людей по ролям
     def get_roles(self):
         line = 'admins:'
         if len(self.admins) == 0:
@@ -90,10 +95,12 @@ class Data:
 
         return line
 
+    # Записать текущие данные в файлы
     def store(self, change_roles=False):
         store_data(self, change_roles)
 
 
+# Записать данные ролей и групп из файлов в Data
 def import_data(data: Data):
     import_roles(data)
 
@@ -105,18 +112,18 @@ def import_data(data: Data):
 
             split_line = line.split()
             group_id = int(split_line[0])
-            finished_path = [-1]
-            if split_line[1] != '-1':
+            finished_path = [0]
+            if split_line[1] != '0':
                 finished_path = [int(loc) for loc in split_line[1].split('-')]
-            future_path = [-1]
-            if split_line[2] != '-1':
+            future_path = [0]
+            if split_line[2] != '0':
                 future_path = [int(loc) for loc in split_line[2].split('-')]
             group_location = int(split_line[3])
             group_moving = False
             if split_line[4] == "True":
                 group_moving = True
-            scores = [int(score) for score in split_line[5:7+SIZE]]
-            arm_scores = [int(score) for score in split_line[7+SIZE:]]
+            scores = [int(score) for score in split_line[5:6+STAGES_SIZE]]
+            arm_scores = [int(score) for score in split_line[6+STAGES_SIZE:]]
 
             data.groups[group_id] = Group(group_id, group_location)
             data.groups[group_id].finished_path = finished_path
@@ -126,10 +133,11 @@ def import_data(data: Data):
             data.groups[group_id].arm_scores = arm_scores
 
 
+# Записать данные о ролях из файлов roles/*.txt в Data
 def import_roles(data: Data):
-    data.stagers = {i: [] for i in range(1, SIZE + 1)}
+    data.stagers = {i: [] for i in range(1, STAGES_SIZE + 1)}
     data.admins = [int(line.strip()) for line in get_lines("roles/admins.txt") if not line.strip() == '']
-    data.armenians = {i: [] for i in range(0, ARMENIAN_SIZE)}
+    data.armenians = {-i: [] for i in range(1, ARMENIAN_SIZE+1)}
 
     stager_lines = get_lines("roles/stagers.txt")
     for line in stager_lines:
@@ -150,6 +158,7 @@ def import_roles(data: Data):
         print("Collisions detected:", col)
 
 
+# Записать данные о ролях в файлы roles/*.txt
 def store_roles(data: Data):
     with open("roles/stagers.txt", "w", encoding="UTF-8") as stagers_file:
         for stager in data.stagers:
@@ -162,14 +171,15 @@ def store_roles(data: Data):
             admins_file.write(str(admin) + '\n')
 
 
+# Записать данные из Data в файлы
 def store_data(data: Data, change_roles=False):
     if change_roles:
         store_roles(data)
 
     with open("groups_data.txt", "w", encoding="UTF-8") as file:
         for group in data.groups.values():
-            file.write(str(group.group_id) + ' ' + group.get_path(False) +
-                       ' ' + group.get_path(True) + ' ' + str(group.location) + ' ' + str(group.moving))
+            file.write(str(group.group_id) + ' ' + group.get_path(True, False) +
+                       ' ' + group.get_path(False, True) + ' ' + str(group.location) + ' ' + str(group.moving))
             for score in group.scores:
                 file.write(' ' + str(score))
             for score in group.arm_scores:

@@ -48,11 +48,11 @@ def handle_response(chat_id: int, text: str):
     response = Response()
     if is_admin(chat_id, data):
         response = handle_admin_response(text, data)
-    elif is_armenian(chat_id, data) >= 0:
-        response = handle_armenian_response(text, is_armenian(chat_id, data), data)
+    elif determine_armenian(chat_id, data) > 0:
+        response = handle_armenian_response(text, determine_armenian(chat_id, data), data)
     else:
         stage = determine_stage(chat_id, data)
-        if stage in range(1, SIZE+1):
+        if stage in range(-ARMENIAN_SIZE, STAGES_SIZE+1) and stage != 0:
             response = handle_stager_response(text, stage, data)
 
     if response is not None and response.text is not None and response.text != [None]:
@@ -67,47 +67,64 @@ def handle_admin_response(text: str, data: Data):
         return Response('admin')
     elif split_text[0] in ["путь", "path", "п", "p"]:
         if len(split_text) == 1:
-            return Response('Введите номер группы в формате:путь [номер группы] [прошлый/будущий (будущий по умолчанию)]')
-        elif (not split_text[1].isdigit()) or (int(split_text[1]) not in range(1, SIZE+1)):
-            return Response('Введите корректный номер группы в формате:'
-                            'путь [номер группы(от 1 до ' + str(SIZE) + ' )] [прошлый/будущий (будущий по умолчанию)]')
+            return Response('Введите номер группы в формате:'
+                            'путь [номер группы] [прошлый/будущий/оба (оба по умолчанию)]')
+        elif (not split_text[1].isdigit()) or (int(split_text[1]) not in range(1, GROUPS_SIZE+1)):
+            return Response('Введите корректный номер группы в формате: путь [номер группы'
+                            '(от 1 до ' + str(GROUPS_SIZE) + ' )] [прошлый/будущий/оба (оба по умолчанию)]')
         else:
             group_id = int(split_text[1])
-            future = True
+            future = False
+            finished = False
             if len(split_text) > 2:
-                if split_text[2] in ["прошлый", "п", "finished", "f", "past", "p"]:
-                    future = False
+                if split_text[2] in ["прошлый", "п", "пр", "прош", "finished", "fin", "past", "p", "fn"]:
+                    finished = True
+                elif split_text[2] in ["будущий", "б", "буд", "future", "fut", "fr"]:
+                    future = True
+                else:
+                    future = True
+                    finished = True
 
-            return Response(("Будущий " if future else "Прошлый ") + "путь группы " +
-                            str(group_id) + ": " + data.groups[group_id].get_path(future))
-    elif split_text[0] in ["установить_путь", "уст_путь", "уст_п", "уп", "у_п", "установить_п", "у_путь", "set_path", "s_path", "set_p", "s_p", "sp"]:
+            prefix = ""
+            if future and not finished:
+                prefix = "Будущий"
+            if finished and not future:
+                prefix = "Прошлый"
+
+            return Response(prefix + "Путь группы " +
+                            str(group_id) + ":\n" + data.groups[group_id].get_path(finished, future))
+    elif split_text[0] in ["установить_путь", "уст_путь", "уст_п", "уп", "у_п", "установить_п",
+                           "у_путь", "set_path", "s_path", "set_p", "s_p", "sp"]:
         if len(split_text) == 1:
             return Response('Введите номер группы в формате:установить_путь '
-                            '[номер группы] [путь через -] [прошлый/будущий (будущий по умолчанию)]')
-        elif (not split_text[1].isdigit()) or (int(split_text[1]) not in range(1, SIZE+1)):
+                            '[номер группы] [путь через /] [прошлый/будущий (будущий по умолчанию)]')
+        elif (not split_text[1].isdigit()) or (int(split_text[1]) not in range(1, GROUPS_SIZE+1)):
             return Response('Введите корректный номер группы в формате:установить_путь [номер группы(от 1 до'
-                            + str(SIZE) + ' )] [путь через -] [прошлый/будущий (будущий по умолчанию)]')
+                            + str(GROUPS_SIZE) + ' )] [путь через /] [прошлый/будущий (будущий по умолчанию)]')
         else:
             group_id = int(split_text[1])
             if len(split_text) == 2:
                 return Response("Введите путь в формате:установить_путь "
-                                "[номер группы] [путь через -] [прошлый/будущий (будущий по умолчанию)]")
+                                "[номер группы] [путь через /] [прошлый/будущий (будущий по умолчанию)]")
             else:
-                path_arr = [-1]
+                path_arr = [0]
 
-                if split_text[2] != "-1":
-                    path_arr = split_text[2].split('-')
+                if split_text[2] != "0":
+                    path_arr = split_text[2].split('/')
                     for e in path_arr:
-                        if not e.isdigit() or int(e) not in range(SIZE+1):
-                            return Response("Введите путь через - "
-                                            "(например 1-2-5-4 (уникальные числа от 0 до " + str(SIZE) + "))")
+                        is_number = e.isdigit or (e[0] == "-" and e[1::].isdigit())
+                        in_range = e in range(-ARMENIAN_SIZE, GROUPS_SIZE+1) and not e == 0
+                        if not is_number or not in_range:
+                            return Response("Введите путь через / "
+                                            "(например 1/2/5/4 (уникальные числа от -" + str(ARMENIAN_SIZE) + " до "
+                                            + str(GROUPS_SIZE) + " (без нуля)))")
 
                     if len(path_arr) > len(set(path_arr)):
                         return Response("Введите путь без повторяющихся чисел")
 
                 future = True
                 if len(split_text) > 3:
-                    if split_text[3] in ["прошлый", "п", "finished", "f", "past", "p"]:
+                    if split_text[3] in ["прошлый", "п", "пр", "прош", "finished", "fin", "past", "p", "fn"]:
                         future = False
 
                 path = [int(path_arr[i]) for i in range(len(path_arr))]
@@ -121,7 +138,7 @@ def handle_admin_response(text: str, data: Data):
                     data.groups[group_id].location = data.groups[group_id].future_path[0]
 
                 return Response(("Будущий " if future else "Прошлый ") + "путь группы "
-                                + str(group_id) + ": " + data.groups[group_id].get_path(future))
+                                + str(group_id) + ": " + data.groups[group_id].get_path(not future, future))
     elif split_text[0] in ["data", "d", "данные", "д"]:
         return Response("admins.txt:\n" + get_file_text("roles/admins.txt") +
                         "\narmenians.txt:\n" + get_file_text("roles/armenians.txt") +
@@ -129,45 +146,75 @@ def handle_admin_response(text: str, data: Data):
                         "\ngroups_data.txt:\n" + get_file_text("groups_data.txt"))
     elif split_text[0] in ["н", "нач", "начало", "begin", "b", "beg", "beginning"]:
         if len(split_text) < 3 or \
-                (not split_text[1].isdigit()) or (int(split_text[1]) not in range(1, SIZE+1)) \
-                or (not split_text[2].isdigit()) or (int(split_text[2]) not in range(SIZE+1)):
+                (not split_text[1].isdigit()) or (int(split_text[1]) not in range(1, GROUPS_SIZE+1)) \
+                or (not (split_text[2].isdigit() or (split_text[2][0] == '-' and split_text[2][1:].isdigit())))\
+                or (int(split_text[2]) not in range(-ARMENIAN_SIZE, STAGES_SIZE+1)):
             return Response('Введите запрос в формате:начало [номер группы] [номер этапа]')
         else:
             return handle_stager_response(text, int(split_text[2]), data)
     elif split_text[0] in ["к", "кон", "конец", "финиш", "finish", "fin", "f", "end"]:
         if len(split_text) < 4 or \
-                (not split_text[1].isdigit()) or (int(split_text[1]) not in range(1, SIZE + 1)) \
-                or (not split_text[2].isdigit()) or (int(split_text[2]) not in range(SIZE + 1))\
+                (not split_text[1].isdigit()) or (int(split_text[1]) not in range(1, GROUPS_SIZE + 1)) \
+                or (not (split_text[2].isdigit() or (split_text[2][0] == '-' and split_text[2][1:].isdigit()))) \
+                or (int(split_text[2]) not in range(-ARMENIAN_SIZE, STAGES_SIZE + 1))\
                 or not (split_text[3].isdigit() or (split_text[3][1:].isdigit() and split_text[3][0] == '-')):
             return Response('Введите запрос в формате:конец [номер группы] [номер этапа] [количество баллов]')
         else:
             return handle_stager_response(
                 split_text[0] + ' ' + split_text[1] + ' ' + split_text[3], int(split_text[2]), data)
-    elif split_text[0] in ['add', 'a', 'add_score', 'add_s', 'a_s', 'as', "добавить", "доб", "добавить_баллы", "доб_бал", "доб_б", "д_б", "дб", "д_бал"]:
-        if len(split_text) < 3 or (not split_text[1].isdigit()) or (int(split_text[1]) not in range(1, SIZE+1)):
+    elif split_text[0] in ['add', 'a', 'add_score', 'add_s', 'a_s', 'as', "добавить", "доб", "добавить_баллы",
+                           "доб_бал", "доб_б", "д_б", "дб", "д_бал"]:
+        if len(split_text) < 3 or (not split_text[1].isdigit()) or (int(split_text[1]) not in range(1, GROUPS_SIZE+1)):
             return Response('Введите кол-во баллов в формате:добавить_баллы [группа] [количество баллов]')
         elif not (split_text[2].isdigit() or (split_text[2][1:].isdigit() and split_text[2][0] == '-')):
             return Response('Введите кол-во баллов в формате:добавить_баллы [группа] [количество баллов (целое число)]')
         else:
             group_id = split_text[1]
             change = split_text[2]
-            data.groups[int(group_id)].scores[SIZE+1] += int(change)
+            data.groups[int(group_id)].scores[0] += int(change)
             rec = set()
             add_recipients(rec, admins=True)
             return Response('Количество баллов ' + group_id + ' группы изменено на ' +
                             change + '. Текущий результат: ' + str(sum(data.groups[int(group_id)].scores)), rec)
     elif split_text[0] in ['статус', 'стат', 'с', 'status', 'stat', 's']:
         message = "Статус этапов:\n\n"
-        stages = [[] for i in range(SIZE + 1)]
-        occupied = [False for i in range(SIZE + 1)]
+        # Этапы
+        stages = [[] for i in range(STAGES_SIZE + 1)]
+        occupied = [False for i in range(STAGES_SIZE + 1)]
         for group in data.groups.values():
-            if group.location is not None and group.location in range(SIZE + 1):
+            if group.location is not None and group.location in range(1, STAGES_SIZE + 1):
                 stages[group.location].append(group.group_id)
                 if not group.moving:
                     occupied[group.location] = True
 
-        for i in range(SIZE + 1):
+        for i in range(STAGES_SIZE+ 1):
             num = str(i) + '. '
+            if len(num) == 3:
+                num += "  "
+            message += num
+            if len(stages[i]) == 0:
+                message += CHECK_MARK + ' Свободен\n'
+            else:
+                if not occupied[i]:
+                    message += RIGHT_ARROW + " "
+                else:
+                    message += CROSS_MARK + " "
+                for group_id in stages[i]:
+                    message += str(group_id) + ', '
+                message = message[:-2]
+                message += '\n'
+
+        # Армяне
+        stages = [[] for i in range(ARMENIAN_SIZE + 1)]
+        occupied = [False for i in range(ARMENIAN_SIZE + 1)]
+        for group in data.groups.values():
+            if group.location is not None and group.location in range(-ARMENIAN_SIZE, 0):
+                stages[-group.location].append(group.group_id)
+                if not group.moving:
+                    occupied[-group.location] = True
+
+        for i in range(ARMENIAN_SIZE + 1):
+            num = str(-i) + '. '
             if len(num) == 3:
                 num += "  "
             message += num
@@ -185,7 +232,7 @@ def handle_admin_response(text: str, data: Data):
 
         return Response(message)
     elif split_text[0] in ['moving', 'set_moving', 'm', 'sm', 'движение', 'дв', 'движ', 'установить_движение', 'уд']:
-        if len(split_text) < 2 or (not split_text[1].isdigit()) or (int(split_text[1]) not in range(1, SIZE+1)):
+        if len(split_text) < 2 or (not split_text[1].isdigit()) or (int(split_text[1]) not in range(1, GROUPS_SIZE+1)):
             return Response('Введите запрос в формате:движение [номер группы] [0/1]')
         else:
             group_id = int(split_text[1])
@@ -224,30 +271,30 @@ def handle_stager_response(text: str, stage_id: int, data: Data):
     if split_text[0] in ["н", "нач", "начало", "begin", "b", "beg", "beginning"]:
         if len(split_text) == 1:
             return Response('Введите номер группы в формате:начало [номер группы]')
-        elif (not split_text[1].isdigit()) or (int(split_text[1]) not in range(1, SIZE+1)):
+        elif (not split_text[1].isdigit()) or (int(split_text[1]) not in range(1, GROUPS_SIZE+1)):
             return Response('Введите корректный номер группы в'
-                            ' формате:начало [номер группы(от 1 до ' + str(SIZE) + ' )]')
+                            ' формате:начало [номер группы(от 1 до ' + str(GROUPS_SIZE) + ' )]')
         else:
             group_id = int(split_text[1])
             data.groups[group_id].arrival(stage_id)
 
+            message = 'Группа ' + str(group_id) + ' начала проходить ' + str(stage_id) + ' этап'
+
             rec = add_recipients(admins=True)
-            if stage_id in range(1, SIZE+1):
-                message = 'Группа ' + str(group_id) + ' начала проходить ' + str(stage_id) + ' этап'
+            if stage_id > 0:
                 for stager in data.stagers[stage_id]:
                     rec.add(stager.chat_id)
-            elif stage_id in range(-ARMENIAN_SIZE+1, 1):
-                message = 'Группа ' + str(group_id) + ' начала проходить ' + str(ARMENIAN_NAMES[-stage_id])
-                for armenian in data.armenians[-stage_id]:
+            else:
+                for armenian in data.armenians[stage_id]:
                     rec.add(armenian.chat_id)
 
             return Response(message, rec)
     elif split_text[0] in ["к", "кон", "конец", "финиш", "finish", "fin", "f", "end"]:
         if len(split_text) == 1:
             return Response('Введите номер группы в формате:конец [номер группы] [количество баллов]')
-        elif (not split_text[1].isdigit()) or (int(split_text[1]) not in range(1, SIZE+1)):
+        elif (not split_text[1].isdigit()) or (int(split_text[1]) not in range(1, GROUPS_SIZE+1)):
             return Response('Введите корректный номер группы в формате:'
-                            'конец [номер группы(от 1 до ' + str(SIZE) + ' )] [количество баллов]')
+                            'конец [номер группы(от 1 до ' + str(GROUPS_SIZE) + ' )] [количество баллов]')
         elif len(split_text) < 3:
             return Response('Введите количество баллов в формате: конец '
                             '[номер группы] [количество баллов]')
@@ -266,22 +313,20 @@ def handle_stager_response(text: str, stage_id: int, data: Data):
                 if stage_id in data.groups[group_id].finished_path:
                     finished = True
 
-                data.groups[group_id].finish_location(stage_id)
                 data.groups[group_id].scores[stage_id] = score
-                message = 'Группа ' + str(group_id) + ' завершила ' \
-                          + str(stage_id) + ' этап с результатом: ' + str(score)
 
                 for stager in data.stagers[stage_id]:
                     rec.add(stager.chat_id)
             else:
-                data.groups[group_id].finish_location(0)
                 data.groups[group_id].arm_scores[-stage_id] = score
                 data.groups[group_id].scores[0] = sum(data.groups[group_id].arm_scores)
-                message = 'Группа ' + str(group_id) + ' завершила "'\
-                          + str(ARMENIAN_NAMES[-stage_id]) + '" с результатом ' + str(score)
 
-                for armenian in data.armenians[-stage_id]:
+                for armenian in data.armenians[stage_id]:
                     rec.add(armenian.chat_id)
+
+            data.groups[group_id].finish_location(stage_id)
+            message = 'Группа ' + str(group_id) + ' завершила ' \
+                      + str(stage_id) + ' этап с результатом: ' + str(score)
 
             resp = Response(message, rec)
 
@@ -313,9 +358,9 @@ def handle_armenian_response(text: str, arm_id: int, data: Data):
     if split_text[0] in ["к", "кон", "конец", "финиш", "finish", "fin", "f", "end"]:
         if len(split_text) == 1:
             return Response('Введите номер группы в формате:конец [номер группы] [количество баллов]')
-        elif (not split_text[1].isdigit()) or (int(split_text[1]) not in range(1, SIZE + 1)):
+        elif (not split_text[1].isdigit()) or (int(split_text[1]) not in range(1, GROUPS_SIZE + 1)):
             return Response('Введите корректный номер группы в формате:'
-                            'конец [номер группы(от 1 до ' + str(SIZE) + ' )] [количество баллов]')
+                            'конец [номер группы(от 1 до ' + str(GROUPS_SIZE) + ' )] [количество баллов]')
         elif len(split_text) < 3:
             return Response('Введите количество баллов в формате: конец '
                             '[номер группы] [количество баллов]')
