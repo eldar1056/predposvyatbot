@@ -4,7 +4,6 @@ import math
 from code.data import Data
 from telegram import Update, Bot
 import datetime
-from code.settings import *
 from group import Group
 
 
