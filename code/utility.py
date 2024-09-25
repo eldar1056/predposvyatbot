@@ -102,8 +102,8 @@ def add_recipients(recipients: set = None, admins: bool = False, stagers: bool =
 # Пробка - этап, на котором сейчас больше одной группы
 class Jam:
     def __init__(self, stage_id: int, groups: list[Group]):
-        self.stage: int = stage_id
-        self.groups: list[Group] = groups
+        self.stage = stage_id
+        self.groups = groups
 
 
 # Находит все существующие пробки
