@@ -30,7 +30,9 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             message = message.replace('{stage_id}', str(stage)).replace(
                 '{stage_name}', STAGE_NAMES[stage]).replace('{GROUPS_SIZE}', str(GROUPS_SIZE))
         else:
-            message += get_file_text("help_text/default.txt")
+            message += get_file_text("help_text/nobody.txt")
+
+        message += get_file_text("help_text/default.txt")
 
     await update.message.reply_text(message, parse_mode=telegram.constants.ParseMode.HTML)
 
