@@ -134,3 +134,31 @@ def fill(text: str, n: int, char: str = ' ', align_left: bool = True):
     else:
         return appendix + text
 
+
+# храним одно число в файле
+def count_up() -> int:
+    with open("logs/count.txt", 'r') as file:
+        count = int(file.read())
+
+    count += 1
+
+    with open("logs/count.txt", 'w') as file:
+        file.write(str(count))
+
+    return count
+
+
+def reset_count():
+    with open("logs/count.txt", 'w') as file:
+        file.write('0')
+
+
+def get_count() -> int:
+    with open("logs/count.txt", 'r') as file:
+        count = int(file.read())
+    return count
+
+
+def set_count(num: int):
+    with open("logs/count.txt", 'w') as file:
+        file.write(str(num))

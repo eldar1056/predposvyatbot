@@ -264,6 +264,20 @@ def handle_admin_response(text: str, data: Data):
         return Response(get_file_text("help_text/admin+.txt"))
     elif split_text[0] in ["roles", "r", "роли", "р"]:
         return Response(data.get_roles())
+    elif split_text[0] in ["count", "cnt", "счетчик", "счет", "cч", "get_count", "gcnt"]:
+        return Response(str(get_count()))
+    elif split_text[0] in ["set_count", "set_cnt", "scnt", "установить_счетчик", "уст_счет", "уссч"]:
+        if len(split_text) < 2 or \
+                not (split_text[1].isdigit() or (split_text[1][0] == '-' and split_text[1][1:].isdigit())):
+            return Response('Введите число в формате: установить_счетчик [число]')
+        else:
+            num = int(split_text[1])
+            set_count(num)
+
+            return Response('Счетчик установлен на ' + str(get_count()))
+    elif split_text[0] in ["reset_count", "reset_cnt", "rcnt", "обнулить_счетчик", "обн_счет", "обсч"]:
+        reset_count()
+        return Response('Счетчик обнулен')
     else:
         return Response('Недоступная команда: ' + split_text[0])
 
@@ -404,9 +418,17 @@ async def handle_message(text: str, chat_id: int, update: Update, context: Conte
 
     if text in ["да", "д", "конечно", "разумеется", "так точно", "yes", "y", "yep", "ok", "ок", "+", "1"]:
         log_response(update, "logs/answer_log.txt", "Yes")
+        if COUNT_YES:
+            count_up()
+        if ALERT_YES:
+            await Response("Got yes from " + update.message.chat.username, {ELDAR}).send(context.bot)
         response.text = ['Принято']
     elif text in ["нет", "н", "иди нафиг", "no", "n", "nope", "-", "0"]:
         log_response(update, "logs/answer_log.txt", "No")
+        if COUNT_NO:
+            count_up()
+        if ALERT_NO:
+            await Response("Got no from " + update.message.chat.username, {ELDAR}).send(context.bot)
         response.text = ['Принято']
     elif text in ['статус', 'стат', 'с', 'status', 'stat', 's']:
         await status_command(update, context)
