@@ -16,9 +16,12 @@ async def second():
     #                                    '. Верно ли это? Пожалуйста, отправьте да/нет в ответ.')
     #     for arm_id in data.armenians.keys():
     #         for armenian in data.armenians[arm_id]:
-    #             await bot.send_message(armenian.chat_id, 'Извиняюсь за спам. Ответьте пожалуйста.')
+    #             await bot.send_message(armenian.chat_id, 'Вы проводите ' + str(-armenian.stage_id) +
+    #             ' бродячий конкурс: ' + ARMENIAN_NAMES[-armenian.stage_id] +
+    #                                     '. Верно ли это? Пожалуйста, отправьте да/нет в ответ.')
+
     #     for admin in data.admins:
-    #         await bot.send_message(admin, 'Извиняюсь за спам. Ответьте пожалуйста.')
+    #         await bot.send_message(admin, '')
 
 
 asyncio.run(second())

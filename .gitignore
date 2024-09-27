@@ -8,3 +8,4 @@ groups_data.txt
 **/__pycache__
 **/nohup.out
 **/second.py
+second.py
