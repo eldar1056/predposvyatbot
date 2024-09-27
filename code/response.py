@@ -429,14 +429,14 @@ async def handle_messages(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def handle_message(text: str, chat_id: int, update: Update, context: ContextTypes.DEFAULT_TYPE):
     response = Response()
 
-    if text in ["да", "д", "конечно", "разумеется", "так точно", "yes", "y", "yep", "ok", "ок", "+", "1"]:
+    if text in ["да", "д", "конечно", "разумеется", "так точно", "yes", "y", "yep", "ok", "ок", "+"]:
         log_response(update, "logs/answer_log.txt", "Yes")
         response.text = ['Принято']
         if COUNT_YES:
             count_up()
         if ALERT_YES:
             await send_message("Got yes from @" + update.message.chat.username, context.bot, {ELDAR})
-    elif text in ["нет", "н", "иди нафиг", "no", "n", "nope", "-", "0"]:
+    elif text in ["нет", "н", "иди нафиг", "no", "n", "nope", "-"]:
         log_response(update, "logs/answer_log.txt", "No")
         response.text = ['Принято']
         if COUNT_NO:
