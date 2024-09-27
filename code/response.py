@@ -1,9 +1,10 @@
-import copy
+# handle_messages -> handle_message -> handle_response -> handle_admin(stager/armeninan)_response
 
 from code.commands import *
 from code.settings import *
 
 
+# Хранит в себе список сообщений и получателей и может отправить их
 class Response:
     def __init__(self, text: str or list = None, recipients: set or list = None):
         if isinstance(text, str):
@@ -20,6 +21,7 @@ class Response:
         else:
             self.recipients = None
 
+    # Копирует содержимое другого Response
     def add_res(self, another):
         if isinstance(another.text, str):
             self.text.append(another.text)
@@ -31,9 +33,11 @@ class Response:
         elif isinstance(another.recipients, list):
             self.recipients += another.recipients
 
+    # Добавляет новое сообщение
     def add(self, text: str or list = None, recipients: set or list = None):
         self.add_res(Response(text, recipients))
 
+    # Отправляет все сообщения соответствующим получателям
     async def send(self, bot: Bot):
         if bot is None or self.text is None:
             return
@@ -48,10 +52,10 @@ def handle_response(chat_id: int, text: str):
     response = Response()
     if is_admin(chat_id, data):
         response = handle_admin_response(text, data)
-    elif determine_armenian(chat_id, data) > 0:
-        response = handle_armenian_response(text, determine_armenian(chat_id, data), data)
+    elif get_armenian_id(chat_id, data) > 0:
+        response = handle_armenian_response(text, get_armenian_id(chat_id, data), data)
     else:
-        stage = determine_stage(chat_id, data)
+        stage = get_stage_id(chat_id, data)
         if stage in range(-ARMENIAN_SIZE, STAGES_SIZE+1) and stage != 0:
             response = handle_stager_response(text, stage, data)
 

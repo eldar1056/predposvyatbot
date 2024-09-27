@@ -25,7 +25,7 @@ def is_admin(chat_id: int, data: Data):
 
 
 # Определить на каком этапе находится армянин
-def determine_armenian(chat_id: int, data: Data):
+def get_armenian_id(chat_id: int, data: Data):
     for stage_id in data.armenians.keys():
         for armenian in data.armenians[stage_id]:
             if chat_id == armenian.chat_id:
@@ -34,13 +34,13 @@ def determine_armenian(chat_id: int, data: Data):
 
 
 # Определить на каком этапе находится этапник
-def determine_stage(chat_id: int, data: Data):
+def get_stage_id(chat_id: int, data: Data):
     for stage in data.stagers.values():
         for stager in stage:
             if chat_id == stager.chat_id:
                 return stager.stage_id
 
-    return determine_armenian(chat_id, data)
+    return get_armenian_id(chat_id, data)
 
 
 def get_file_text(filename: str):

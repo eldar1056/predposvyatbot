@@ -21,12 +21,12 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if is_admin(chat_id, data):
         message = get_file_text("help_text/admin.txt")
     else:
-        arm_id = determine_armenian(chat_id, data)
+        arm_id = get_armenian_id(chat_id, data)
         if arm_id >= 0:
             message = get_file_text("help_text/armenian.txt").replace(
                 '{GROUPS_SIZE}', str(GROUPS_SIZE)).replace('{stage_name}', str(ARMENIAN_NAMES[arm_id]))
         else:
-            stage = determine_stage(chat_id, data)
+            stage = get_stage_id(chat_id, data)
             if stage in range(STAGES_SIZE+1):
                 message = get_file_text("help_text/stager.txt")
                 message = message.replace('{stage_id}', str(stage)).replace(
@@ -111,8 +111,8 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         message += position
         message += "Баллы: " + str(sum(group.scores)) + ". Этапы: " + finished + ".\n"
 
-    # Для админов дополнительная информация о пробках
-    if is_admin(update.message.chat_id, data):
+    # Для админов(и не только) дополнительная информация о пробках
+    if is_admin(update.message.chat_id, data) or get_stage_id(update.message.chat_id, data) != 0:
         jams = find_jam(data)
         if len(jams) == 0:
             message += "\nПробок нет\n"
