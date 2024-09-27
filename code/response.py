@@ -129,8 +129,8 @@ def handle_admin_response(text: str, data: Data):
                 if split_text[2] != "0":
                     path_arr = split_text[2].split('/')
                     for e in path_arr:
-                        is_number = e.isdigit or (e[0] == "-" and e[1::].isdigit())
-                        in_range = e in range(-ARMENIAN_SIZE, GROUPS_SIZE+1) and not e == 0
+                        is_number = (e.isdigit or (e[0] == "-" and e[1:].isdigit()))
+                        in_range = (int(e) in range(-ARMENIAN_SIZE, GROUPS_SIZE+1) and not int(e) == 0)
                         if not is_number or not in_range:
                             return Response("Введите путь через / "
                                             "(например 1/2/5/4 (уникальные числа от -" + str(ARMENIAN_SIZE) + " до "
@@ -177,8 +177,13 @@ def handle_admin_response(text: str, data: Data):
                 or not (split_text[3].isdigit() or (split_text[3][1:].isdigit() and split_text[3][0] == '-')):
             return Response('Введите запрос в формате:конец [номер группы] [номер этапа] [количество баллов]')
         else:
-            return handle_stager_response(
-                split_text[0] + ' ' + split_text[1] + ' ' + split_text[3], int(split_text[2]), data)
+            if split_text[2][0] == '-':
+                return handle_armenian_response(
+                    split_text[0] + ' ' + split_text[1] + ' ' + split_text[3], int(split_text[2]), data
+                )
+            else:
+                return handle_stager_response(
+                    split_text[0] + ' ' + split_text[1] + ' ' + split_text[3], int(split_text[2]), data)
     elif split_text[0] in ['add', 'a', 'add_score', 'add_s', 'a_s', 'as', "добавить", "доб", "добавить_баллы",
                            "доб_бал", "доб_б", "д_б", "дб", "д_бал"]:
         if len(split_text) < 3 or (not split_text[1].isdigit()) or (int(split_text[1]) not in range(1, GROUPS_SIZE+1)):
@@ -192,7 +197,7 @@ def handle_admin_response(text: str, data: Data):
             rec = set()
             add_recipients(rec, admins=True)
             return Response('Количество баллов ' + group_id + ' группы изменено на ' +
-                            change + '. Текущий результат: ' + str(sum(data.groups[int(group_id)].scores)), rec)
+                            change + '. Текущий результат: ' + str(sum(data.groups[int(group_id)].scores) + sum(data.groups[int(group_id)].arm_scores)), rec)
     elif split_text[0] in ['статус', 'стат', 'с', 'status', 'stat', 's']:
         message = "Статус этапов:\n\n"
         # Этапы
@@ -353,7 +358,6 @@ def handle_stager_response(text: str, stage_id: int, data: Data):
                     rec.add(stager.chat_id)
             else:
                 data.groups[group_id].arm_scores[-stage_id] = score
-                data.groups[group_id].scores[0] = sum(data.groups[group_id].arm_scores)
 
                 for armenian in data.armenians[stage_id]:
                     rec.add(armenian.chat_id)

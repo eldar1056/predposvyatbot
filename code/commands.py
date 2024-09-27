@@ -94,18 +94,28 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if len(position) == 1:
             position = 9 * ' ' + position + 8 * ' '
         if len(position) == 2:
-            position = 8 * ' ' + position + 7 * ' '
+            position = 8 * ' ' + position + 8 * ' '
         elif len(position) == 3:
             position = 7 * ' ' + position + 6 * ' '
         elif len(position) == 4:
             if position[1] == '-':
-                position = 7 * ' ' + position + 4 * ' '
+                position = 7 * ' ' + position + 6 * ' '
             else:
                 position = 5 * ' ' + position + 6 * ' '
         elif len(position) == 5:
+            position = 5 * ' ' + position + 6 * ' '
+        elif len(position) == 6:
             position = 5 * ' ' + position + 4 * ' '
+        elif len(position) == 7:
+            position = 4 * ' ' + position + 4 * ' '
+        elif len(position) == 8:
+            position = 3 * ' ' + position + 3 * ' '
         elif len(position) == 9:
-            position += 4 * ' '
+            position = 2 * ' ' + position + 2 * ' '
+        else:
+            position = 1 * ' ' + position + 1 * ' ' #fill(fill(position, 10, ' ', False), 20, ' ', True)
+
+        # position = fill(fill(position, 10, '-', False), 20, '-', True)
 
         message += position
         message += "Баллы: " + str(sum(group.scores)) + ". Этапы: " + finished + ".\n"
@@ -158,7 +168,7 @@ async def scores_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     message = 'Баллы групп:\n\n'
     for i in range(1, GROUPS_SIZE+1):
-        message += str(i) + ". " + str(sum(data.groups[i].scores))
+        message += str(i) + ". " + str(sum(data.groups[i].scores) + sum(data.groups[i].arm_scores))
 
         second_part = ''
         for j in range(1, STAGES_SIZE+1):
@@ -166,7 +176,7 @@ async def scores_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if data.groups[i].scores[j] != 0:
                 second_part += str(data.groups[i].scores[j]) + '(' + str(j) + ') + '
         for j in range(1, ARMENIAN_SIZE+1):
-            if data.groups[i].scores[j+STAGES_SIZE] != 0:
+            if data.groups[i].arm_scores[j] != 0:
                 second_part += str(data.groups[i].arm_scores[j]) + '(-' + str(j) + ') + '
         if data.groups[i].scores[0] != 0:
             second_part += str(data.groups[i].scores[0]) + '(другое) + '
