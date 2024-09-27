@@ -52,7 +52,8 @@ def get_file_text(filename: str):
 
 
 # Отправить сообщение получателям
-async def send_message(text: str, bot: Bot, recipients=None, admins=False, stagers=False, armenians=False):
+async def send_message(text: str, bot: Bot, recipients: set = None, admins: bool = False,
+                       stagers: bool = False, armenians: bool = False):
     if text is None or text == '':
         return
 
@@ -62,7 +63,7 @@ async def send_message(text: str, bot: Bot, recipients=None, admins=False, stage
     add_recipients(recipients, admins, stagers, armenians)
 
     for chat in recipients:
-        text_arr = [text[i*4096:(i+1)*4096] for i in range(math.ceil(len(text)/4))]
+        text_arr = [text[i*4096:(i+1)*4096] for i in range(math.ceil(len(text)/4096))]
         for line in text_arr:
             await bot.send_message(chat, line, parse_mode=telegram.constants.ParseMode.HTML)
 

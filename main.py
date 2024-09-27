@@ -14,6 +14,9 @@ def main():
 
     data = Data(ERASE_DATA)
 
+    if RESET_COUNT:
+        reset_count()
+
     print()
     print(data.get_roles())
     print()

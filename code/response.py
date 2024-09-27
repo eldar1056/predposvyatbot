@@ -23,11 +23,21 @@ class Response:
 
     # Копирует содержимое другого Response
     def add_res(self, another):
+        if another.text is None or another.recipients is None:
+            return
+
+        if self.text is None:
+            self.text = []
+        if self.recipients is None:
+            self.recipients = []
+
         if isinstance(another.text, str):
             self.text.append(another.text)
         elif isinstance(another.text, list):
             self.text += another.text
 
+        if self.recipients is None and another.recipients is not None:
+            self.recipients = []
         if isinstance(another.recipients, set):
             self.recipients.append(another.recipients)
         elif isinstance(another.recipients, list):
@@ -256,6 +266,9 @@ def handle_admin_response(text: str, data: Data):
 
     elif split_text[0] == 'reset':
         data.__init__(True)
+        if RESET_COUNT:
+            reset_count()
+
         message = 'ВНИМАНИЕ! Данные сброшены до начальных значений.'
         rec = set()
         add_recipients(rec, admins=True)
@@ -264,7 +277,7 @@ def handle_admin_response(text: str, data: Data):
         return Response(get_file_text("help_text/admin+.txt"))
     elif split_text[0] in ["roles", "r", "роли", "р"]:
         return Response(data.get_roles())
-    elif split_text[0] in ["count", "cnt", "счетчик", "счет", "cч", "get_count", "gcnt"]:
+    elif split_text[0] in ["count", "cnt", "счетчик", "счет", "сч", "get_count", "gcnt"]:
         return Response(str(get_count()))
     elif split_text[0] in ["set_count", "set_cnt", "scnt", "установить_счетчик", "уст_счет", "уссч"]:
         if len(split_text) < 2 or \
@@ -418,18 +431,19 @@ async def handle_message(text: str, chat_id: int, update: Update, context: Conte
 
     if text in ["да", "д", "конечно", "разумеется", "так точно", "yes", "y", "yep", "ok", "ок", "+", "1"]:
         log_response(update, "logs/answer_log.txt", "Yes")
+        response.text = ['Принято']
         if COUNT_YES:
             count_up()
         if ALERT_YES:
-            await Response("Got yes from " + update.message.chat.username, {ELDAR}).send(context.bot)
-        response.text = ['Принято']
+            await send_message("Got yes from @" + update.message.chat.username, context.bot, {ELDAR})
     elif text in ["нет", "н", "иди нафиг", "no", "n", "nope", "-", "0"]:
         log_response(update, "logs/answer_log.txt", "No")
+        response.text = ['Принято']
         if COUNT_NO:
             count_up()
         if ALERT_NO:
-            await Response("Got no from " + update.message.chat.username, {ELDAR}).send(context.bot)
-        response.text = ['Принято']
+            response.recipients = [{chat_id}]
+            await send_message("Got no from @" + update.message.chat.username, context.bot, {ELDAR})
     elif text in ['статус', 'стат', 'с', 'status', 'stat', 's']:
         await status_command(update, context)
         return
