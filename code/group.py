@@ -35,23 +35,23 @@ class Group:
         self.location = self.future_path[0]
 
     # Получить строку с прошлым или будущим путем группы
-    def get_path(self, finished=True, future=False):
+    def get_path(self, finished=True, future=False) -> str:
         if not future and not finished:
-            return 0
+            return '0'
         if len(self.future_path) == 0 and len(self.finished_path) == 0:
-            return 0
+            return '0'
 
         str_path = ""
 
         if finished and len(self.finished_path) != 0:
             if future and finished:
-                str_path += "Прошлый:"
+                str_path += "Прошлый: "
             str_path += str(self.finished_path[0])
             for i in range(1, len(self.finished_path)):
                 str_path += "/" + str(self.finished_path[i])
         if future and len(self.future_path) != 0:
             if future and finished:
-                str_path += "\nБудущий:"
+                str_path += "\nБудущий: "
             str_path += str(self.future_path[0])
             for i in range(1, len(self.future_path)):
                 str_path += "/" + str(self.future_path[i])

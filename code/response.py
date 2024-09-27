@@ -98,12 +98,15 @@ def handle_admin_response(text: str, data: Data):
                 else:
                     future = True
                     finished = True
+            else:
+                future = True
+                finished = True
 
             prefix = ""
             if future and not finished:
-                prefix = "Будущий"
+                prefix = "Будущий "
             if finished and not future:
-                prefix = "Прошлый"
+                prefix = "Прошлый "
 
             return Response(prefix + "Путь группы " +
                             str(group_id) + ":\n" + data.groups[group_id].get_path(finished, future))
