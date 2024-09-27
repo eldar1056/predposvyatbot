@@ -21,19 +21,16 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if is_admin(chat_id, data):
         message = get_file_text("help_text/admin.txt")
     else:
-        arm_id = get_armenian_id(chat_id, data)
-        if arm_id >= 0:
+        stage = get_stage_id(chat_id, data)
+        if stage in range(-ARMENIAN_SIZE, 0):
             message = get_file_text("help_text/armenian.txt").replace(
-                '{GROUPS_SIZE}', str(GROUPS_SIZE)).replace('{stage_name}', str(ARMENIAN_NAMES[arm_id]))
+                '{GROUPS_SIZE}', str(GROUPS_SIZE)).replace('{stage_name}', str(ARMENIAN_NAMES[-stage]))
+        elif stage in range(STAGES_SIZE+1):
+            message = get_file_text("help_text/stager.txt")
+            message = message.replace('{stage_id}', str(stage)).replace(
+                '{stage_name}', STAGE_NAMES[stage]).replace('{GROUPS_SIZE}', str(GROUPS_SIZE))
         else:
-            stage = get_stage_id(chat_id, data)
-            if stage in range(STAGES_SIZE+1):
-                message = get_file_text("help_text/stager.txt")
-                message = message.replace('{stage_id}', str(stage)).replace(
-                    '{stage_name}', STAGE_NAMES[stage]).replace('{GROUPS_SIZE}', str(GROUPS_SIZE))
-            else:
-                message = get_file_text("help_text/nobody.txt")
-        message += get_file_text("help_text/default.txt")
+            message += get_file_text("help_text/default.txt")
 
     await update.message.reply_text(message, parse_mode=telegram.constants.ParseMode.HTML)
 
