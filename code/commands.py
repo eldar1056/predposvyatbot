@@ -118,7 +118,7 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # position = fill(fill(position, 10, '-', False), 20, '-', True)
 
         message += position
-        message += "Баллы: " + str(sum(group.scores)) + ". Этапы: " + finished + ".\n"
+        message += "Баллы: " + str(sum(group.scores)+sum(group.arm_scores)) + ". Этапы: " + finished + ".\n"
 
     # Для админов(и не только) дополнительная информация о пробках
     if is_admin(update.message.chat_id, data) or get_stage_id(update.message.chat_id, data) != 0:
