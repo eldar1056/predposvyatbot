@@ -25,7 +25,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if stage in range(-ARMENIAN_SIZE, 0):
             message = get_file_text("help_text/armenian.txt").replace(
                 '{GROUPS_SIZE}', str(GROUPS_SIZE)).replace('{stage_name}', str(ARMENIAN_NAMES[-stage]))
-        elif stage in range(STAGES_SIZE+1):
+        elif stage in range(1, STAGES_SIZE+1):
             message = get_file_text("help_text/stager.txt")
             message = message.replace('{stage_id}', str(stage)).replace(
                 '{stage_name}', STAGE_NAMES[stage]).replace('{GROUPS_SIZE}', str(GROUPS_SIZE))
@@ -145,7 +145,7 @@ async def stages_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     for i in range(1, STAGES_SIZE+1):
         message += str(i) + '. ' + str(STAGE_NAMES[i]) + ": "
         for stager in data.stagers[i]:
-            message += stager.username + ', '
+            message += '@' + stager.username + ', '
         message = message[:-2]
         message += '\n\n'
 
@@ -154,7 +154,7 @@ async def stages_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         for i in range(1, ARMENIAN_SIZE+1):
             message += str(i) + '. ' + str(ARMENIAN_NAMES[i]) + ": "
             for armenian in data.armenians[-i]:
-                message += armenian.username + ', '
+                message += '@' + armenian.username + ', '
             message = message[:-2]
             if i < ARMENIAN_SIZE:
                 message += '\n\n'
