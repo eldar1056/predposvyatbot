@@ -5,7 +5,7 @@ from code.response import handle_messages
 
 async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print(f'Error: {update} caused error {context.error}')
-    log_response(update, "logs/error_log.txt", str(update) + ': ' + str(context.error))
+    log_response(update, "logs/error_log.txt", str(update) + ': ' + str(context.error) + '\n\n')
 
 
 def main():
