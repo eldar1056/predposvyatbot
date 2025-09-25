@@ -62,13 +62,13 @@ class Data:
     def get_roles(self):
         line = 'admins:'
         if len(self.admins) == 0:
-            line += '[]'
+            line += '[]\n'
         else:
             line += '['
             for admin in self.admins:
                 line += str(admin) + ', '
             line = line[:-2]
-            line += ']'
+            line += ']\n'
         line += "\nstagers:\n"
         for key, stagers in self.stagers.items():
             line += str(key) + '.['
@@ -81,17 +81,17 @@ class Data:
 
             line += ']\n'
 
-        line += "armenians:"
-        if len(self.armenians) == 0:
-            line += '[]'
-        else:
-            line += '['
-            for arm_id in self.armenians:
-                for armenian in self.armenians[arm_id]:
+        line += "\narmenians:\n"
+        for key, armenians in self.armenians.items():
+            line += str(key) + '.['
+
+            if len(armenians) > 0:
+                for armenian in armenians:
                     line += 'chat_id=' + str(armenian.chat_id) + \
                             ' username=' + armenian.username + 'stage_id=' + str(armenian.stage_id) + ', '
-            line = line[:-2]
-            line += ']'
+                    line = line[:-2]
+
+            line += ']\n'
 
         return line
 
