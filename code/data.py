@@ -88,7 +88,7 @@ class Data:
             if len(armenians) > 0:
                 for armenian in armenians:
                     line += 'chat_id=' + str(armenian.chat_id) + \
-                            ' username=' + armenian.username + 'stage_id=' + str(armenian.stage_id) + ', '
+                            ' username=' + armenian.username + ' stage_id=' + str(armenian.stage_id) + ', '
                     line = line[:-2]
 
             line += ']\n'
