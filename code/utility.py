@@ -143,23 +143,23 @@ def count_up() -> int:
 
     count += 1
 
-    with open("../logs/count.txt", 'w') as file:
+    with open("count.txt", 'w') as file:
         file.write(str(count))
 
     return count
 
 
 def reset_count():
-    with open("../logs/count.txt", 'w') as file:
+    with open("logs/count.txt", 'w') as file:
         file.write('0')
 
 
 def get_count() -> int:
-    with open("../logs/count.txt", 'r') as file:
+    with open("logs/count.txt", 'r') as file:
         count = int(file.read())
     return count
 
 
 def set_count(num: int):
-    with open("../logs/count.txt", 'w') as file:
+    with open("logs/count.txt", 'w') as file:
         file.write(str(num))

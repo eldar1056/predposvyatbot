@@ -160,13 +160,13 @@ def import_roles(data: Data):
 
 # Записать данные о ролях в файлы roles/*.txt
 def store_roles(data: Data):
-    with open("../roles/stagers.txt", "w", encoding="UTF-8") as stagers_file:
+    with open("roles/stagers.txt", "w", encoding="UTF-8") as stagers_file:
         for stager in data.stagers:
             stagers_file.write(str(stager.chat_id) + stager.username + str(stager.stage_id) + '\n')
-    with open("../roles/armenians.txt", "w", encoding="UTF-8") as armenians_file:
+    with open("roles/armenians.txt", "w", encoding="UTF-8") as armenians_file:
         for armenian in data.armenians:
             armenians_file.write(str(armenian.chat_id) + armenian.username + str(armenian.stage_id) + '\n')
-    with open("../roles/admins.txt", "w", encoding="UTF-8") as admins_file:
+    with open("roles/admins.txt", "w", encoding="UTF-8") as admins_file:
         for admin in data.admins:
             admins_file.write(str(admin) + '\n')
 

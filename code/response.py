@@ -157,9 +157,9 @@ def handle_admin_response(text: str, data: Data):
                 return Response(("Будущий " if future else "Прошлый ") + "путь группы "
                                 + str(group_id) + ": " + data.groups[group_id].get_path(not future, future))
     elif split_text[0] in ["data", "d", "данные", "д"]:
-        return Response("admins.txt:\n" + get_file_text("../roles/admins.txt") +
-                        "\narmenians.txt:\n" + get_file_text("../roles/armenians.txt") +
-                        "\nstagers.txt:\n" + get_file_text("../roles/stagers.txt") +
+        return Response("admins.txt:\n" + get_file_text("roles/admins.txt") +
+                        "\narmenians.txt:\n" + get_file_text("roles/armenians.txt") +
+                        "\nstagers.txt:\n" + get_file_text("roles/stagers.txt") +
                         "\ngroups_data.txt:\n" + get_file_text("groups_data.txt"))
     elif split_text[0] in ["н", "нач", "начало", "begin", "b", "beg", "beginning"]:
         if len(split_text) < 3 or \
@@ -282,7 +282,7 @@ def handle_admin_response(text: str, data: Data):
         add_recipients(rec, admins=True)
         return Response(message, rec)
     elif split_text[0] in ['help*', 'h*', 'помощь*', 'п*', 'help+', 'h+', 'помощь+', 'п+']:
-        return Response(get_file_text("../help_text/admin+.txt").replace('{ARMENIAN_NAMES[0]}', str(ARMENIAN_NAMES[0])))
+        return Response(get_file_text("/admin+.txt").replace('{ARMENIAN_NAMES[0]}', str(ARMENIAN_NAMES[0])))
     elif split_text[0] in ["roles", "r", "роли", "р"]:
         return Response(data.get_roles())
     elif split_text[0] in ["count", "cnt", "счетчик", "счет", "сч", "get_count", "gcnt"]:
@@ -421,7 +421,7 @@ async def handle_messages(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if text.split()[0] in ['вопрос', 'request']:
         message = (text[7:]).replace('\n', ' ').strip()
-        log_response(update, "../logs/question_log.txt", message)
+        log_response(update, "logs/question_log.txt", message)
         await update.message.reply_text('Ваше сообщение принято. Спасибо!')
         return
 
@@ -437,14 +437,14 @@ async def handle_message(text: str, chat_id: int, update: Update, context: Conte
     response = Response()
 
     if text in ["да", "д", "конечно", "разумеется", "так точно", "yes", "y", "yep", "ok", "ок", "+"]:
-        log_response(update, "../logs/answer_log.txt", "Yes")
+        log_response(update, "logs/answer_log.txt", "Yes")
         response.text = ['Принято']
         if COUNT_YES:
             count_up()
         if ALERT_YES:
             await send_message("Got yes from @" + update.message.chat.username, context.bot, {ELDAR})
     elif text in ["нет", "н", "иди нафиг", "no", "n", "nope", "-"]:
-        log_response(update, "../logs/answer_log.txt", "No")
+        log_response(update, "logs/answer_log.txt", "No")
         response.text = ['Принято']
         if COUNT_NO:
             count_up()
