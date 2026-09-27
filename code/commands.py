@@ -152,7 +152,7 @@ async def stages_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         message += '\n\n'
 
     if ARMENIAN_SIZE > 0:
-        message += '#армяне\n\n'
+        message += ARMENIAN_NAMES[0]+'\n\n'
         for i in range(1, ARMENIAN_SIZE+1):
             message += str(i) + '. ' + str(ARMENIAN_NAMES[i]) + ": "
             for armenian in data.armenians[-i]:
