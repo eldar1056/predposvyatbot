@@ -5,7 +5,7 @@ from code.utility import *
 
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    log_response(update, "logs/start_log.txt", "")
+    log_response(update, "../logs/start_log.txt", "")
     await update.message.reply_text('Привет!\n\nЭтот бот был сделан для проведения предпосвята фопф32x. '
                                     'С его помощью можно отслеживать прогресс прохождения этапов группами.\n\n'
                                     'Карта предпосвята: https://yandex.ru/maps/?bookmarks%5BpublicId%5D=VJEqEWIs'
