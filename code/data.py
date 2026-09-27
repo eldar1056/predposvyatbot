@@ -136,17 +136,17 @@ def import_data(data: Data):
 # Записать данные о ролях из файлов roles/*.txt в Data
 def import_roles(data: Data):
     data.stagers = {i: [] for i in range(1, STAGES_SIZE + 1)}
-    data.admins = [int(line.strip()) for line in get_lines("roles/admins.txt") if not line.strip() == '']
+    data.admins = [int(line.strip()) for line in get_lines("../roles/admins.txt") if not line.strip() == '']
     data.armenians = {-i: [] for i in range(1, ARMENIAN_SIZE+1)}
 
-    stager_lines = get_lines("roles/stagers.txt")
+    stager_lines = get_lines("../roles/stagers.txt")
     for line in stager_lines:
         if line.strip() == '':
             continue
         split_line = line.split()
         data.stagers[int(split_line[2])].append(Stager(split_line))
 
-    armenian_lines = get_lines("roles/armenians.txt")
+    armenian_lines = get_lines("../roles/armenians.txt")
     for line in armenian_lines:
         if line.strip() == '':
             continue
@@ -160,13 +160,13 @@ def import_roles(data: Data):
 
 # Записать данные о ролях в файлы roles/*.txt
 def store_roles(data: Data):
-    with open("roles/stagers.txt", "w", encoding="UTF-8") as stagers_file:
+    with open("../roles/stagers.txt", "w", encoding="UTF-8") as stagers_file:
         for stager in data.stagers:
             stagers_file.write(str(stager.chat_id) + stager.username + str(stager.stage_id) + '\n')
-    with open("roles/armenians.txt", "w", encoding="UTF-8") as armenians_file:
+    with open("../roles/armenians.txt", "w", encoding="UTF-8") as armenians_file:
         for armenian in data.armenians:
             armenians_file.write(str(armenian.chat_id) + armenian.username + str(armenian.stage_id) + '\n')
-    with open("roles/admins.txt", "w", encoding="UTF-8") as admins_file:
+    with open("../roles/admins.txt", "w", encoding="UTF-8") as admins_file:
         for admin in data.admins:
             admins_file.write(str(admin) + '\n')
 

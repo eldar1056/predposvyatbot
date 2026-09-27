@@ -1,15 +1,15 @@
 import telegram.constants
 from telegram.ext import ContextTypes
-from code.settings import *
-from code.utility import *
+from settings import *
+from utility import *
 
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     log_response(update, "logs/start_log.txt", "")
     await update.message.reply_text('Привет!\n\nЭтот бот был сделан для проведения предпосвята фопф32x. '
                                     'С его помощью можно отслеживать прогресс прохождения этапов группами.\n\n'
-                                    'Карта предпосвята: https://yandex.ru/maps/-/CLewnHNV\n\nЧтобы получить описание'
-                                    ' возможных команд, нажмите на /help')
+                                    'Карта предпосвята: https://yandex.ru/maps/?bookmarks%5BpublicId%5D=VJEqEWIs'
+                                    '\n\nЧтобы получить описание возможных команд, нажмите на /help')
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -24,7 +24,9 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         stage = get_stage_id(chat_id, data)
         if stage in range(-ARMENIAN_SIZE, 0):
             message = get_file_text("help_text/armenian.txt").replace(
-                '{GROUPS_SIZE}', str(GROUPS_SIZE)).replace('{stage_name}', str(ARMENIAN_NAMES[-stage]))
+                '{GROUPS_SIZE}', str(GROUPS_SIZE)).replace('{stage_name}', str(ARMENIAN_NAMES[-stage])).replace(
+                '{ARMENIAN_NAMES[0]}', str(ARMENIAN_NAMES[0])
+            )
         elif stage in range(1, STAGES_SIZE+1):
             message = get_file_text("help_text/stager.txt")
             message = message.replace('{stage_id}', str(stage)).replace(
