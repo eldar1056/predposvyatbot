@@ -1,7 +1,7 @@
 import telegram.constants
 from telegram.ext import ContextTypes
-from settings import *
-from utility import *
+from code.settings import *
+from code.utility import *
 
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
