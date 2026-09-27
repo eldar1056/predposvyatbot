@@ -282,7 +282,7 @@ def handle_admin_response(text: str, data: Data):
         add_recipients(rec, admins=True)
         return Response(message, rec)
     elif split_text[0] in ['help*', 'h*', 'помощь*', 'п*', 'help+', 'h+', 'помощь+', 'п+']:
-        return Response(get_file_text("/admin+.txt").replace('{ARMENIAN_NAMES[0]}', str(ARMENIAN_NAMES[0])))
+        return Response(get_file_text("help_text/admin+.txt").replace('{ARMENIAN_NAMES[0]}', str(ARMENIAN_NAMES[0])))
     elif split_text[0] in ["roles", "r", "роли", "р"]:
         return Response(data.get_roles())
     elif split_text[0] in ["count", "cnt", "счетчик", "счет", "сч", "get_count", "gcnt"]:

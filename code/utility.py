@@ -138,12 +138,12 @@ def fill(text: str, n: int, char: str = ' ', align_left: bool = True):
 
 # храним одно число в файле
 def count_up() -> int:
-    with open("../count.txt", 'r') as file:
+    with open("logs/count.txt", 'r') as file:
         count = int(file.read())
 
     count += 1
 
-    with open("count.txt", 'w') as file:
+    with open("logs/count.txt", 'w') as file:
         file.write(str(count))
 
     return count
